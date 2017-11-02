@@ -394,7 +394,7 @@ public class NewPlayer implements IPlayer {
 			
 			if(i+vec[0] < size && j+vec[1] < size && k+vec[2]<size)
 			{				
-				_searchField(board, i+1, j, k, vec, _value, IsPlayer);
+				_searchField(board, i+vec[0], j+vec[1], k+vec[2], vec, _value, IsPlayer);
 			}
 			else
 			{
