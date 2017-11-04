@@ -33,26 +33,27 @@ class BoardMoves
  */
 public class NewPlayer implements IPlayer {
 	
+	private static int counter = 1;
+	private int id = 0;
 	private float learningRate = 0.001f;
 	private ArrayList<Double> w_i;
 	private ArrayList<Integer> x_i;
 	private IBoard savedBoard = null;	
 	private boolean isfirstRound = true;
-	private boolean isDebugMode = false;
+	private boolean isDebugMode = true;
 	
-	private int X1;
-	private int X2;
-	private int X3;
-	private int X4;
-	private int X5;
+	// Features Xi
+	private int X1,X2,X3,X4,X5,X6,X7,X8,X9;	
+	private int NumberOfFeatures = 9;
 	
-	private int NumberOfFeatures = 7;
-
-
-	public String getName() 
-	{
-		return "Nic Aragua";
+	public NewPlayer() {
+		this.id = counter++;
 	}
+
+	public String getName() {
+		return "Learning Player " + this.id;
+	}
+
 	
 	public int[] makeMove(IBoard board) {
 
@@ -104,7 +105,7 @@ public class NewPlayer implements IPlayer {
 		// berechne Zielfunktion für jeden Zug und speicher besten Zug
 		for (int i = 0; i < possibleBoardMoves.size(); ++i) 
 		{			
-			if (this.getTargetFunction(this.w_i, (IBoard) possibleBoardMoves.get(i)) > bestValue) 
+			if (this.getTargetFunction(this.w_i, (IBoard) possibleBoardMoves.get(i)) >= bestValue) 
 			{
 				bestValue = this.getTargetFunction(this.w_i, (IBoard) possibleBoardMoves.get(i));
 				bestBoard = possibleBoardMoves.get(i);
@@ -274,13 +275,22 @@ public class NewPlayer implements IPlayer {
 		X3=0;
 		X4=0;
 		X5=0;
+		X6=0;
+		X7=0;
+		X8=0;
+		X9=0;
 		/*
 		 X0 = hasFirstMove ? 1 : 0;
 		 X1 = selbst 3 in einer Reihe und sonst nichts in der Reihe
-	     X2 = Gegner hat 3 in einer Reihe und sonst nichts in der Reihe
+	   - X2 = Gegner hat 3 in einer Reihe und sonst nichts in der Reihe
 	     X3 = selbst 4 in einer Reihe und sonst nichts in der Reihe
-	     X4 = Gegner hat 4 in einer Reihe und sonst nichts in der Reihe
+	   - X4 = Gegner hat 4 in einer Reihe und sonst nichts in der Reihe
 	     X5 = selbst 5 in einer Reihe
+	     X6 = selbst 1 in der Reihe + einen Frei
+	     X7 = selbst 1 in der reihe + 2 frei
+	     X8 = selbst 2 in der Reihe + einen Frei
+	     X9 = selbst 2 in der Reihe + 2 frei
+	   - X10= Gegner 2 in einer Reihe + 2 frei
 		 */
 		
 		// Evaluate the Board
@@ -381,6 +391,11 @@ public class NewPlayer implements IPlayer {
 		x_i.set(3, X3);
 		x_i.set(4, X4);
 		x_i.set(5, X5);		
+		
+		if (isDebugMode)
+		{
+			//System.out.println("Feautres:" + X1 +","+  X2 +","+ X3 +","+ X4 +","+ X5 );
+		}
 	}
 
 	private void _searchField(IBoard board, int i, int j, int k,int[] vec, int value, Boolean IsPlayer )
@@ -394,7 +409,8 @@ public class NewPlayer implements IPlayer {
 			
 			if(i+vec[0] < size && j+vec[1] < size && k+vec[2]<size)
 			{				
-				_searchField(board, i+1, j, k, vec, _value, IsPlayer);
+				// _searchField(board, i+1, j, k, vec, _value, IsPlayer); // corrected by Kilian
+				_searchField(board, i+vec[0], j+vec[1], k+vec[2], vec, _value, IsPlayer);
 			}
 			else
 			{
@@ -421,13 +437,13 @@ public class NewPlayer implements IPlayer {
 			 if (board.getFieldValue(new int[] {i-4*vec[0],j-4*vec[1],k-4*vec[2]}) == null)
 			 {
 				 if(IsPlayer) X3++;
-				 else X4++;
+				 else X4-=10;
 			 }			 
 		 }
 		 else if(board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
 		 {
 			 if(IsPlayer) X3++;
-			 else X4++;
+			 else X4-=10;
 		 }
 		}
 		
@@ -440,9 +456,10 @@ public class NewPlayer implements IPlayer {
 				 board.getFieldValue(new int[] {i-4*vec[0],j-4*vec[1],k-4*vec[2]}) == null)
 			 {
 				 if(IsPlayer) X1++;
-				 else X2++;
+				 else X2--;
 			 }
 		 }
+		
 		 else
 		 {
 			 if(!(i+2*vec[0] == size || j+2*vec[1] == size || k+2*vec[2] == size)
@@ -452,17 +469,26 @@ public class NewPlayer implements IPlayer {
 				board.getFieldValue(new int[] {i+2*vec[0],j+2*vec[1],k+2*vec[2]}) == null)
 			 {
 				 if(IsPlayer) X1++;
-				 else X2++;
+				 else X2--;
 			 }
-			 if (board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null //TODO: wirft Fehler
+			 if (board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null 
 					 &&
 				 board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
 			 {
 				 if(IsPlayer) X1++;
-				 else X2++;
+				 else X2--;
 			 }
 		 }
 		}
+		if(value == 2)
+		{
+			//TODO ???
+		}
+		if(value == 1)
+		{
+			//TODO ???
+		}
+		
 	}
 
 }
