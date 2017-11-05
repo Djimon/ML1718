@@ -431,9 +431,9 @@ public class NewPlayer implements IPlayer {
 		
 		if(value == 4)
 		{
-		 if(i+vec[0] == size || j+vec[1] == size || k+vec[2] == size)
+		 if(i+vec[0] >= size || j+vec[1] >= size || k+vec[2] >= size)
 		 {
-			 if (board.getFieldValue(new int[] {i-4*vec[0],j-4*vec[1],k-4*vec[2]}) == null)
+			 if (!(i-4*vec[0] < 0 || j-4*vec[1] <0 || k-4*vec[2] <0) && board.getFieldValue(new int[] {i-4*vec[0],j-4*vec[1],k-4*vec[2]}) == null)
 			 {
 				 if(IsPlayer) X3++;
 				 else X4-=10;
@@ -448,9 +448,13 @@ public class NewPlayer implements IPlayer {
 		
 		if(value == 3)
 		{
-		 if(i+vec[0] == size || j+vec[1] == size || k+vec[2] == size)
+		 if(i+vec[0] >= size || j+vec[1] >= size || k+vec[2] >= size)
 		 {
-			 if (board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null
+			 if (!(i-3*vec[0] < 0 || j-3*vec[1] <0 || k-3*vec[2] <0) 
+					 &&
+				 !(i-4*vec[0] < 0 || j-4*vec[1] <0 || k-4*vec[2] <0) 
+					 &&
+				 board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null
 					 &&
 				 board.getFieldValue(new int[] {i-4*vec[0],j-4*vec[1],k-4*vec[2]}) == null)
 			 {
@@ -461,7 +465,7 @@ public class NewPlayer implements IPlayer {
 		
 		 else
 		 {
-			 if(!(i+2*vec[0] == size || j+2*vec[1] == size || k+2*vec[2] == size)
+			 if(!(i+2*vec[0] >= size || j+2*vec[1] >= size || k+2*vec[2] >= size)
 					 &&
 				board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null					 
 					 &&
@@ -470,7 +474,9 @@ public class NewPlayer implements IPlayer {
 				 if(IsPlayer) X1++;
 				 else X2--;
 			 }
-			 if (board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null 
+			 if (!(i-3*vec[0] < 0 || j-3*vec[1] <0 || k-3*vec[2] <0) 
+					 &&
+				 board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null 
 					 &&
 				 board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
 			 {
@@ -479,13 +485,115 @@ public class NewPlayer implements IPlayer {
 			 }
 		 }
 		}
-		if(value == 2)
+		if(value == 2) // 2 in einer Reihe und Rest der Reihe frei
 		{
-			//TODO ???
+			if(i+vec[0] >= size || j+vec[1] >= size || k+vec[2] >= size)
+			 {
+				 if (!(i-2*vec[0] < 0 || j-2*vec[1] <0 || k-2*vec[2] <0)
+						 &&
+					 !(i-3*vec[0] < 0 || j-3*vec[1] <0 || k-3*vec[2] <0) 
+						 &&
+					 !(i-4*vec[0] < 0 || j-4*vec[1] <0 || k-4*vec[2] <0) 
+						 &&
+					 board.getFieldValue(new int[] {i-2*vec[0],j-2*vec[1],k-2*vec[2]}) == null
+						 &&
+					 board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null
+						 &&
+					 board.getFieldValue(new int[] {i-4*vec[0],j-4*vec[1],k-4*vec[2]}) == null)
+				 {
+					 if(IsPlayer) ;
+					 else ;
+					 // TODO: Bewertung
+				 }
+			 }
+			else
+			 {
+				 if(!(i+2*vec[0] >= size || j+2*vec[1] >= size || k+2*vec[2] >= size))
+				 {
+					 if(!(i-2*vec[0] < 0 || j-2*vec[1] <0 || k-2*vec[2] <0) 
+							&&
+						board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null					 
+						 	&&
+					    board.getFieldValue(new int[] {i+2*vec[0],j+2*vec[1],k+2*vec[2]}) == null
+					    	&&
+					    board.getFieldValue(new int[] {i-2*vec[0],j-2*vec[1],k-2*vec[2]}) == null)
+					 {
+						 if(IsPlayer) ;
+						 else ;
+						 // TODO: Bewertung
+				 	}
+					 else if (!(i+3*vec[0] >= size || j+3*vec[1] >= size || k+3*vec[2] >= size)
+							 	&&
+							 board.getFieldValue(new int[] {i+3*vec[0],j+3*vec[1],k+3*vec[2]}) == null 
+							 	&&
+							 board.getFieldValue(new int[] {i+2*vec[0],j+2*vec[1],k+2*vec[2]}) == null
+								&&
+							 board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
+						 {
+						 if(IsPlayer) ;
+						 else ;
+						 // TODO: Bewertung
+						 }
+						 
+				 }
+				 else
+				 {
+					 if (!(i-3*vec[0] < 0 || j-3*vec[1] <0 || k-3*vec[2] <0) 
+							&&
+						 !(i-2*vec[0] < 0 || j-2*vec[1] <0 || k-2*vec[2] <0) 
+							&&
+						 board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null 
+							&&
+						 board.getFieldValue(new int[] {i-2*vec[0],j-2*vec[1],k-2*vec[2]}) == null
+							&&
+						 board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
+						 {
+						 if(IsPlayer) ;
+						 else ;
+						 // TODO: Bewertung
+						 }
+				 }
+				 
+			 }
 		}
+		
 		if(value == 1)
-		{
-			//TODO ???
+		{ 
+			int temp = 0;
+			int count = 1;
+			
+			while(!(i+count*vec[0] >= size || j+count*vec[1] >= size || k+count*vec[2] >= size))
+			{
+				if(board.getFieldValue(new int[] {i+count*vec[0],j+count*vec[1],k+count*vec[2]}) == null)
+				{
+					temp++;
+					count++;
+				}
+				else
+				{
+					break;
+				}
+			}
+			count = 1;
+			while(!(i-count*vec[0] < 0 || j-count*vec[1] < 0 || k-count*vec[2] < 0))
+			{
+				if(board.getFieldValue(new int[] {i-count*vec[0],j-count*vec[1],k-count*vec[2]}) == null)
+				{
+					temp++;
+					count++;
+				}
+				else
+				{
+					break;
+				}
+			}
+			
+			if(temp >= 4) // Wenn 4, sind genau 4 Felder frei, wenn mehr als 4 Felder frei wären, würde irgendwas schief laufen..
+			{
+				if(IsPlayer) ;
+				 else ;
+				 // TODO: Bewertung
+			}
 		}
 		
 	}
