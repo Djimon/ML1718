@@ -493,11 +493,7 @@ private void searchField(IBoard board, int i, int j, int k)
 		 {
 			 if (!(i-3*vec[0] < 0 || j-3*vec[1] <0 || k-3*vec[2] <0) 
 					 &&
-				 !(i-4*vec[0] < 0 || j-4*vec[1] <0 || k-4*vec[2] <0) 
-					 &&
-				 board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null
-					 &&
-				 board.getFieldValue(new int[] {i-4*vec[0],j-4*vec[1],k-4*vec[2]}) == null)
+				 board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null)
 			 {
 				 if(IsPlayer) X1++;
 				 else X2--;
@@ -506,41 +502,27 @@ private void searchField(IBoard board, int i, int j, int k)
 		
 		 else
 		 {
-			 if(!(i+2*vec[0] >= size || j+2*vec[1] >= size || k+2*vec[2] >= size)
-					 &&
-				board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null					 
-					 &&
-				board.getFieldValue(new int[] {i+2*vec[0],j+2*vec[1],k+2*vec[2]}) == null)
+			 if(board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
 			 {
 				 if(IsPlayer) X1++;
 				 else X2--;
 			 }
 			 if (!(i-3*vec[0] < 0 || j-3*vec[1] <0 || k-3*vec[2] <0) 
 					 &&
-				 board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null 
-					 &&
-				 board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
+				 board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null)
 			 {
 				 if(IsPlayer) X1++;
 				 else X2--;
 			 }
 		 }
 		}
-		if(value == 2) // 2 in einer Reihe und Rest der Reihe frei
+		if(value == 2) 
 		{
 			if(i+vec[0] >= size || j+vec[1] >= size || k+vec[2] >= size)
 			 {
 				 if (!(i-2*vec[0] < 0 || j-2*vec[1] <0 || k-2*vec[2] <0)
 						 &&
-					 !(i-3*vec[0] < 0 || j-3*vec[1] <0 || k-3*vec[2] <0) 
-						 &&
-					 !(i-4*vec[0] < 0 || j-4*vec[1] <0 || k-4*vec[2] <0) 
-						 &&
-					 board.getFieldValue(new int[] {i-2*vec[0],j-2*vec[1],k-2*vec[2]}) == null
-						 &&
-					 board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null
-						 &&
-					 board.getFieldValue(new int[] {i-4*vec[0],j-4*vec[1],k-4*vec[2]}) == null)
+					 board.getFieldValue(new int[] {i-2*vec[0],j-2*vec[1],k-2*vec[2]}) == null)
 				 {
 					 if(IsPlayer) X8++;
 					 else X10--;
@@ -550,50 +532,22 @@ private void searchField(IBoard board, int i, int j, int k)
 			 {
 				 if(!(i+2*vec[0] >= size || j+2*vec[1] >= size || k+2*vec[2] >= size))
 				 {
-					 if(!(i-2*vec[0] < 0 || j-2*vec[1] <0 || k-2*vec[2] <0) 
+					 if((!(i-2*vec[0] < 0 || j-2*vec[1] <0 || k-2*vec[2] <0) 
 							&&
-						board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null					 
-						 	&&
-					    board.getFieldValue(new int[] {i+2*vec[0],j+2*vec[1],k+2*vec[2]}) == null
-					    	&&
-					    board.getFieldValue(new int[] {i-2*vec[0],j-2*vec[1],k-2*vec[2]}) == null)
+						board.getFieldValue(new int[] {i-2*vec[0],j-2*vec[1],k-2*vec[2]}) == null)
+							||
+						board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
 					 {
 						 if(IsPlayer) X8++;
-						 else X10--;
-						 // TODO: Bewertung
+						 else X10--;				
 				 	}
-					 else if (!(i+3*vec[0] >= size || j+3*vec[1] >= size || k+3*vec[2] >= size)
-							 	&&
-							 board.getFieldValue(new int[] {i+3*vec[0],j+3*vec[1],k+3*vec[2]}) == null 
-							 	&&
-							 board.getFieldValue(new int[] {i+2*vec[0],j+2*vec[1],k+2*vec[2]}) == null
-								&&
-							 board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
+					 else if (board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
 						 {
 						 if(IsPlayer) X8++;
 						 else X10--;
-						 // TODO: Bewertung
 						 }
 						 
 				 }
-				 else
-				 {
-					 if (!(i-3*vec[0] < 0 || j-3*vec[1] <0 || k-3*vec[2] <0) 
-							&&
-						 !(i-2*vec[0] < 0 || j-2*vec[1] <0 || k-2*vec[2] <0) 
-							&&
-						 board.getFieldValue(new int[] {i-3*vec[0],j-3*vec[1],k-3*vec[2]}) == null 
-							&&
-						 board.getFieldValue(new int[] {i-2*vec[0],j-2*vec[1],k-2*vec[2]}) == null
-							&&
-						 board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
-						 {
-						 if(IsPlayer) X8++;
-						 else X10--;
-						 // TODO: Bewertung
-						 }
-				 }
-				 //TODO: (fast) alle value==2 landen hier, also kommen in keine der Bedinungen rein
 			 }
 		}
 		
@@ -632,7 +586,6 @@ private void searchField(IBoard board, int i, int j, int k)
 			{
 				if(IsPlayer) X6++;
 				 else X7--;
-				 // TODO: Bewertung
 			}
 		}
 		
