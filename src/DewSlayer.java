@@ -38,7 +38,7 @@ public class DewSlayer implements IPlayer {
 	
 	private static int counter = 1;
 	private int id = 0;
-	private float learningRate = 0.001f;
+	private float learningRate = 0.0001f;
 	private ArrayList<Double> w_i;
 	private ArrayList<Integer> x_i;
 	private IBoard savedBoard = null;	
@@ -53,7 +53,7 @@ public class DewSlayer implements IPlayer {
 	private List<int[]> Stats = new ArrayList<int[]>();
 	
 	// Features Xi
-	private int X1,X2,X3,X4,X5,X6,X7,X8,X9,X10;	
+	private int X1, X2, X3, X4, X5, X6, X7, X8, X9, X10;	
 	private int NumberOfFeatures = 10;
 	
 	public DewSlayer() {
@@ -73,10 +73,10 @@ public class DewSlayer implements IPlayer {
 		int size = board.getSize();
 		int[] winningStart = new int[]{size/2,size/2,size/2};
 
-		/*
+		
 		if (board.getFieldValue(winningStart) == null)
 			return winningStart;			
-		*/
+		
 		
 		// foreach field in board-copy:
 		// board.getFieldValue((new int[] { i, k, m }))
@@ -100,7 +100,7 @@ public class DewSlayer implements IPlayer {
 		// If there was a round before, update weights
 		if (this.savedBoard != null) 
 		{
-			this.w_i = this.UpdateWeights(this.w_i, this.savedBoard, board);
+			//this.w_i = this.UpdateWeights(this.w_i, this.savedBoard, board);
 		}
 			
 		IBoard bestBoard = null;
@@ -173,8 +173,21 @@ public class DewSlayer implements IPlayer {
 		//target function contains concat(Features(me),Features(Enemy)); therefore it's twice the boardsize
 		for (int i=0; i<= size;i++)
 		{
-			weights.add(0.1D);
-		}		
+			weights.add(1D);
+		}	
+		/*
+		weights.add(1.0);
+		weights.add(1.0262191368873936);
+		weights.add(0.988999999477528);
+		weights.add(1.0);
+		weights.add(1.0);
+		weights.add(1.0);
+		weights.add(6.541743898454774);
+		weights.add(0.3115337621937845);
+		weights.add(1.1680467061896187);
+		weights.add(1.0);
+		weights.add(2.0);
+		*/
 		return weights;
 	}
 		
@@ -182,8 +195,8 @@ public class DewSlayer implements IPlayer {
 	{
 		int[] temp = bm.get(index).getMove();
 		
-		if (bm.get(index).getBoard() != best)
-			System.out.println("Not the same Board");
+		//if (bm.get(index).getBoard() != best)
+		//	System.out.println("Not the same Board");
 		
 		return temp;
 	}
@@ -252,14 +265,14 @@ public class DewSlayer implements IPlayer {
 	//TODO: may change and refactor
 	private ArrayList<Double> UpdateWeights(ArrayList<Double> w, IBoard savedBoard, IBoard board) 
 	{
-		Double error = Double.valueOf(this.getTargetFunction(w, board) - this.getTargetFunction(w, savedBoard));
+		Double error = Math.max(5D,Double.valueOf(this.getTargetFunction(w, board) - this.getTargetFunction(w, savedBoard)));
 		ArrayList<Integer> f = this.getBoardFeatures(board);
 		ArrayList<Double> weigths = new ArrayList<Double>();
 
 		int i;
 		for (i = 0; i < w.size(); ++i) {
 			weigths.add(new Double(((Double) w.get(i)).doubleValue()
-					+ (double) this.learningRate * (double) ((Integer) f.get(i)).intValue() * error.doubleValue()));
+					+ (double) this.learningRate * (double) ((Integer) f.get(i)).intValue() * error));
 		}
 
 		if (this.isDebugMode) {
@@ -334,7 +347,8 @@ public class DewSlayer implements IPlayer {
 		this.w_i = this.UpdateWeights(this.w_i, this.savedBoard, board.clone());
 		this.savedBoard = null;
 		
-		System.out.println("R:"+ round + " W:"+wins+" L:"+looses+" T:"+turns);
+		//System.out.println("R:"+ round + " W:"+wins+" L:"+looses+" T:"+turns);
+		System.out.println(w_i.toString());
 		Stats.add(new int[] {round,wins,looses,turns});
 		turns = 0;
 		try {
@@ -539,12 +553,12 @@ private void searchField(IBoard board, int i, int j, int k)
 						board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
 					 {
 						 if(IsPlayer) X8++;
-						 else X10--;				
+						 else ;				
 				 	}
 					 else if (board.getFieldValue(new int[] {i+vec[0],j+vec[1],k+vec[2]}) == null)
 						 {
 						 if(IsPlayer) X8++;
-						 else X10--;
+						 else ;
 						 }
 						 
 				 }
@@ -612,6 +626,9 @@ private void searchField(IBoard board, int i, int j, int k)
 			writer.append("\n");		    
 		}
 		writer.close();
+		FileWriter weights = new FileWriter("finalWeigths.txt");
+		weights.append(w_i.toString());
+		weights.close();
 	}
 
 }

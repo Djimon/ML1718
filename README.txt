@@ -1,1 +1,1 @@
-Please have a look at docs/index.html.
+At first you have to create the project following the steps at dke-ml-tictactoe-1.3.0\docs\eclipse of the downloadable folder. Integrate then the .java-file (DewSlayer.java) into the project and let the program run with a match of "DewSlayer" versus a RandomPlayer. 
