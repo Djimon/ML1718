@@ -3,8 +3,11 @@ import de.ovgu.dke.teaching.ml.tictactoe.api.IPlayer;
 import de.ovgu.dke.teaching.ml.tictactoe.api.IllegalMoveException;
 import de.ovgu.dke.teaching.ml.tictactoe.game.Move;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 class BoardMoves
 {
@@ -40,7 +43,14 @@ public class DewSlayer implements IPlayer {
 	private ArrayList<Integer> x_i;
 	private IBoard savedBoard = null;	
 	private boolean isfirstRound = true;
-	private boolean isDebugMode = true;
+	private boolean isDebugMode = false;
+	
+	private int round = 0;
+	private int wins = 0;
+	private int looses = 0;
+	private int turns = 0;
+	
+	private List<int[]> Stats = new ArrayList<int[]>();
 	
 	// Features Xi
 	private int X1,X2,X3,X4,X5,X6,X7,X8,X9,X10;	
@@ -57,13 +67,16 @@ public class DewSlayer implements IPlayer {
 	
 	public int[] makeMove(IBoard board) {
 
+		turns++;
 		// create a clone of the board that can be modified
 		IBoard copy = board.clone();
 		int size = board.getSize();
 		int[] winningStart = new int[]{size/2,size/2,size/2};
 
+		/*
 		if (board.getFieldValue(winningStart) == null)
 			return winningStart;			
+		*/
 		
 		// foreach field in board-copy:
 		// board.getFieldValue((new int[] { i, k, m }))
@@ -311,13 +324,30 @@ public class DewSlayer implements IPlayer {
 
 	public void onMatchEnds(IBoard board) 
 	{	
+		round++;
+		
+		if (board.getWinner() == this)
+			wins++;
+		else if (board.getWinner() != null)
+			looses++;
+		
 		this.w_i = this.UpdateWeights(this.w_i, this.savedBoard, board.clone());
 		this.savedBoard = null;
 		
+		System.out.println("R:"+ round + " W:"+wins+" L:"+looses+" T:"+turns);
+		Stats.add(new int[] {round,wins,looses,turns});
+		turns = 0;
+		try {
+			SaveStats();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return;
 	}
 
-	private void searchField(IBoard board, int i, int j, int k)
+	
+private void searchField(IBoard board, int i, int j, int k)
 	{ 
 		if(board.getFieldValue(new int[] {i,j,k}) != null)
 		{
@@ -607,6 +637,28 @@ public class DewSlayer implements IPlayer {
 		}
 		
 	saveXtoFeatureList();	
+	}
+	
+	protected void finalize() throws Throwable
+	{
+		SaveStats();
+		super.finalize();
+	}
+
+	private void SaveStats() throws IOException 
+	{
+		FileWriter writer = new FileWriter("ML_Stats.csv");
+
+		for (int j = 0; j < Stats.size(); j++) 
+		{
+			for (int i = 0; i< Stats.get(j).length; i++)
+			{
+				writer.append(String.valueOf(Stats.get(j)[i]));
+			    writer.append(";");
+			}
+			writer.append("\n");		    
+		}
+		writer.close();
 	}
 
 }
