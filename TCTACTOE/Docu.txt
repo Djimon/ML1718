@@ -12,4 +12,9 @@ The search for useful combinations is generally a depth-first search. Although i
 
 When the recursion gets into a blind end the variables for evaluation are incremented if no other mark is in this line. Otherwise this line wouldn't be of any use for this match. Because this (together with the condition that there are 5 fields in line) could be fulfilled to seldom for 2 to 4 marks in a row we mitigated the conditions, so that for value 2 and 3 only one neighboring field needs to be empty, which also doesn't test anymore if this line segment can be 5 marks long which isn't of any use for winning the game itself but might help the algorithm itself to improve. 
 
-For training the weights we used the least mean square error algorithm showed in the lecture
+For training the weights we used the least mean square error algorithm showed in the lecture.
+
+Against the RandomPlayer our algortihm performs quite well and the turns we need to win are decrease quickly (see diagrams). In a long term our training does not improve very much.
+
+as a result of our learning we see, that our feature 7 has a high priority, whereas feature 8 becomes the lowest weights.
+We did not reach the best possible result.

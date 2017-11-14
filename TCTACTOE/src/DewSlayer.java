@@ -9,29 +9,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-class BoardMoves
-{
-	private IBoard board;
-	private int[] move;
-	
-	public BoardMoves(IBoard b, int[] m)
-	{
-		this.board = b;
-		this.move = m;		
-	}
-	
-	public IBoard getBoard()
-	{
-		return board;
-	}
-	
-	public int[] getMove()
-	{
-		return move;
-	}	
-}
-
 /**
+ * For further documentation and answers to the taks a) and b)
+ * see the Docu.txt file
  * @author Christoph Dollase, Kilian Pößel
  */
 public class DewSlayer implements IPlayer {
@@ -39,17 +19,17 @@ public class DewSlayer implements IPlayer {
 	private static int counter = 1;
 	private int id = 0;
 	private float learningRate = 0.0001f;
-	private ArrayList<Double> w_i;
-	private ArrayList<Integer> x_i;
+	private ArrayList<Double> w_i; //List of weigths
+	private ArrayList<Integer> x_i; //List of features
 	private IBoard savedBoard = null;	
 	private boolean isfirstRound = true;
 	private boolean isDebugMode = false;
 	
+	// for statistics
 	private int round = 0;
 	private int wins = 0;
 	private int looses = 0;
-	private int turns = 0;
-	
+	private int turns = 0;	
 	private List<int[]> Stats = new ArrayList<int[]>();
 	
 	// Features Xi
@@ -63,7 +43,6 @@ public class DewSlayer implements IPlayer {
 	public String getName() {
 		return "DewSlayer " + this.id;
 	}
-
 	
 	public int[] makeMove(IBoard board) {
 
@@ -78,18 +57,6 @@ public class DewSlayer implements IPlayer {
 			return winningStart;			
 		
 		
-		// foreach field in board-copy:
-		// board.getFieldValue((new int[] { i, k, m }))
-		
-		/*				
-		Überprüfe, was der gegner gemacht hat (oldBoard vs. newBoard)
-		Überprüfe die Achsen seines letzten Zuges		
-		
-		Gewichte anpassen	
-		*/
-
-		/* ================== ENDE INTRO ======================= */
-		
 		if (this.isfirstRound) 
 		{
 			this.w_i = this.initializeWeights(NumberOfFeatures);
@@ -97,15 +64,12 @@ public class DewSlayer implements IPlayer {
 			this.isfirstRound = false;
 		}
 
-		// If there was a round before, update weights
-		if (this.savedBoard != null) 
-		{
-			//this.w_i = this.UpdateWeights(this.w_i, this.savedBoard, board);
-		}
 			
 		IBoard bestBoard = null;
 		int bestBoardIndex = 0;
 		double bestValue = -Double.MAX_VALUE;
+		
+		this.savedBoard = board.clone();
 		
 		// simuliere alle mögliche Züge
 		ArrayList<BoardMoves> BoardsWithMoves = this.getAllPossibleBoardMoves(copy);
@@ -125,8 +89,6 @@ public class DewSlayer implements IPlayer {
 				bestBoardIndex = i;
 			}
 		}
-
-		this.savedBoard = board.clone();
 		
 		// do a move using the cloned board
 		int[] result = this.getMove(BoardsWithMoves, bestBoardIndex, bestBoard);		
@@ -136,25 +98,6 @@ public class DewSlayer implements IPlayer {
 			System.out.println("ERROR: ILLEGAL MOVE!!!!!!1111einelf!!");
 		}		
 		return result;
-	}
-	
-	private boolean isBoardEmpty(IBoard board)
-	{
-		int size = board.getSize();
-		boolean isEmpty = false;
-		
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				for (int k = 0; k < size; k++) 
-				{
-					if (board.getFieldValue(new int[]{i,j,k}) == null)
-						isEmpty = true;
-					else
-						isEmpty = false;
-				}
-			}
-		}
-		return isEmpty;
 	}
 	
 	private ArrayList<Integer> initializeFeatures(int size) 
@@ -175,19 +118,7 @@ public class DewSlayer implements IPlayer {
 		{
 			weights.add(1D);
 		}	
-		/*
-		weights.add(1.0);
-		weights.add(1.0262191368873936);
-		weights.add(0.988999999477528);
-		weights.add(1.0);
-		weights.add(1.0);
-		weights.add(1.0);
-		weights.add(6.541743898454774);
-		weights.add(0.3115337621937845);
-		weights.add(1.1680467061896187);
-		weights.add(1.0);
-		weights.add(2.0);
-		*/
+
 		return weights;
 	}
 		
@@ -262,17 +193,15 @@ public class DewSlayer implements IPlayer {
 		}
 	}
 
-	//TODO: may change and refactor
 	private ArrayList<Double> UpdateWeights(ArrayList<Double> w, IBoard savedBoard, IBoard board) 
 	{
-		Double error = Math.max(5D,Double.valueOf(this.getTargetFunction(w, board) - this.getTargetFunction(w, savedBoard)));
+		Double error = Math.max(5D, (double) this.getTargetFunction(w, board) - this.getTargetFunction(w, savedBoard));
 		ArrayList<Integer> f = this.getBoardFeatures(board);
 		ArrayList<Double> weigths = new ArrayList<Double>();
 
 		int i;
 		for (i = 0; i < w.size(); ++i) {
-			weigths.add(new Double(((Double) w.get(i)).doubleValue()
-					+ (double) this.learningRate * (double) ((Integer) f.get(i)).intValue() * error));
+			weigths.add((double) w.get(i) + (double) this.learningRate * (double) ((int) f.get(i)) * error);
 		}
 
 		if (this.isDebugMode) {
@@ -337,6 +266,7 @@ public class DewSlayer implements IPlayer {
 
 	public void onMatchEnds(IBoard board) 
 	{	
+		
 		round++;
 		
 		if (board.getWinner() == this)
@@ -351,17 +281,17 @@ public class DewSlayer implements IPlayer {
 		System.out.println(w_i.toString());
 		Stats.add(new int[] {round,wins,looses,turns});
 		turns = 0;
-		try {
+		try 
+		{
 			SaveStats();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) 
+		{
 			e.printStackTrace();
 		}
 		return;
 	}
-
 	
-private void searchField(IBoard board, int i, int j, int k)
+	private void searchField(IBoard board, int i, int j, int k)
 	{ 
 		if(board.getFieldValue(new int[] {i,j,k}) != null)
 		{
@@ -631,6 +561,28 @@ private void searchField(IBoard board, int i, int j, int k)
 		weights.close();
 	}
 
+}
+
+class BoardMoves
+{
+	private IBoard board;
+	private int[] move;
+	
+	public BoardMoves(IBoard b, int[] m)
+	{
+		this.board = b;
+		this.move = m;		
+	}
+	
+	public IBoard getBoard()
+	{
+		return board;
+	}
+	
+	public int[] getMove()
+	{
+		return move;
+	}	
 }
 
 
