@@ -1,28 +1,22 @@
 import java.util.ArrayList;
-
-import ID3.Tree2XMLConverter.Buying;
-import ID3.Tree2XMLConverter.Classification;
-import ID3.Tree2XMLConverter.Doors;
-import ID3.Tree2XMLConverter.Lug_Boot;
-import ID3.Tree2XMLConverter.Maint;
-import ID3.Tree2XMLConverter.Persons;
-import ID3.Tree2XMLConverter.Safety;
-
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.lang.Object;
 
 
-public enum Classification{unacc, acc, good, vgood}
-public enum Buying{vhigh, high, med, low}
-public enum Maint{vhigh, high, med, low}
-public enum Doors{Two, Four, Fivemore}
-public enum Persons{Two, Four, More}
-public enum Lug_Boot{small, med, big}
-public enum Safety{low, med, high}
-
 public class ID3 
 {
+	public enum Classification{unacc, acc, good, vgood}
+	public enum Buying{vhigh, high, med, low}
+	public enum Maint{vhigh, high, med, low}
+	public enum Doors{Two, Four, Fivemore}
+	public enum Persons{Two, Four, More}
+	public enum Lug_Boot{small, med, big}
+	public enum Safety{low, med, high}
+	
 	TreeNode<String> test = new TreeNode<String>("root");
 	
 	
@@ -31,76 +25,43 @@ public class ID3
 
 	public static void main(String[] args)
 	{
-		ArrayList<car> cars = new ArrayList<car>();
-		cars = read("cardaten/car.data");
+		ArrayList<Car> Cars = new ArrayList<Car>();
+		Cars = read("Cardaten/Car.data");
+		Car[] temp = new Car[Cars.size()];
+		Cars.toArray(temp);
+		for(int i = 0 ; i< temp.length;i++)
+		{
+			System.out.println(temp[i].ToString());
+		}
 		
 		// ID3 laufen lassen
+		// if pure > break;
+		
 		
 		// XML-Ausgabe
 	}
-}
 
-public static ArrayList<car> read(String filepath)
+public static ArrayList<Car> read(String filepath)
 {
-	ArrayList<car> cardata = new ArrayList<car>();
+	ArrayList<Car> Cardata = new ArrayList<Car>();
 	try (BufferedReader br = new BufferedReader(new FileReader(new File(filepath)))) {
 	    String line;
 	    while ((line = br.readLine()) != null) {
 	        String delims = "[,]";
-	    	String[] tokens = line.split(delims);
-	    	cardata.add(new car(tokens[0],tokens[1],tokens[2],tokens[3],tokens[4],tokens[5],tokens[6]));
+	    	String[] tokens = line.split(delims);	    	
+	    	Cardata.add(new Car(tokens[0],tokens[1],tokens[2],tokens[3],tokens[4],tokens[5],tokens[6]));
 	    }
+	} catch (FileNotFoundException e) {
+		System.out.println("no such file: "+filepath);
+		e.printStackTrace();
+	} catch (IOException e) {
+		System.out.println("somethng went wrong ( "+e+")");
+		e.printStackTrace();
 	}
 	
-	return cardata;
+	return Cardata;
 }
 
-
-class car
-{
-	Classification classification;
-	Buying buying;
-	Maint maint;
-	Doors doors;
-	Persons persons;
-	Lug_Boot lug_boot;
-	Safety safety;
-	
-	private car(String classi, String buy, String mai, String door, String pers, String lug, String saf )
-	{
-		if(classi.equals(Classification.acc.toString())) classification = Classification.acc;
-		if(classi.equals(Classification.good.toString())) classification = Classification.good;
-		if(classi.equals(Classification.vgood.toString())) classification = Classification.vgood;
-		else classification = Classification.unacc;
-		
-		if(buy.equals(Buying.vhigh.toString())) buying = Buying.vhigh;
-		if(buy.equals(Buying.high.toString())) buying = Buying.high;
-		if(buy.equals(Buying.med.toString())) buying = Buying.med;
-		else buying = Buying.low;
-		
-		if(mai.equals(Maint.vhigh.toString())) maint = Maint.vhigh;
-		if(mai.equals(Maint.high.toString())) maint = Maint.high;
-		if(mai.equals(Maint.med.toString())) maint = Maint.med;
-		else maint = Maint.low;
-		
-		if(door.equals("4"))) doors = Doors.Four;
-		if(door.equals("5more")) doors = Doors.Fivemore;
-		else doors = Doors.Two;
-		
-		if(pers.equals("4")) persons = Persons.Four;
-		if(pers.equals("more")) persons = Persons.More;
-		else persons = Persons.Two;
-		
-		if(lug.equals(Lug_Boot.med.toString())) lug_boot = Lug_Boot.med;
-		if(lug.equals(Lug_Boot.big.toString())) lug_boot = Lug_Boot.big;
-		else lug_boot = Lug_Boot.small;
-		
-		if(saf.equals(Safety.med.toString())) safety = Safety.med;
-		if(saf.equals(Safety.high.toString())) safety = Safety.high;
-		else safety = Safety.low;
-	}
-	
-}
 
 class Node 
 {
@@ -170,4 +131,5 @@ class Tree2XMLConverter
 	}
 	
 
+}
 }
