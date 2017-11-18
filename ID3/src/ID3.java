@@ -1,4 +1,7 @@
 import java.util.ArrayList;
+
+import sun.reflect.generics.tree.Tree;
+
 import java.lang.Math;
 import java.io.BufferedReader;
 import java.io.File;
@@ -29,18 +32,22 @@ public class ID3
 	{
 		ArrayList<Car> Cars = new ArrayList<Car>();
 		Cars = read("Cardaten/Car.data");
+		/*
 		Car[] temp = new Car[Cars.size()];
 		Cars.toArray(temp);
 		for(int i = 0 ; i< temp.length;i++)
 		{
 			System.out.println(temp[i].ToString());
 		}
+		*/
 		
-		// ID3 laufen lassen
-		// if pure > break;
-		
-		
-		// XML-Ausgabe
+		TreeNode<Car> Tree = new TreeNode<Tree>(Cars);
+		Tree.buildTree();
+			
+		Tree2XMLConverter printer = new Tree2XMLConverter(Tree);
+		printer.AddLineTree();
+		printer.write(this.tree, 0);
+		printer.FinishTree();
 	}
 
 public static ArrayList<Car> read(String filepath)
@@ -285,6 +292,7 @@ public static double getlogn(int number, int base)
 }
 
 
+// nicht benötigt
 class Node 
 {
 	private String name;
@@ -301,13 +309,16 @@ class Tree2XMLConverter
 {
 	private String XML;
 	private char I = '"';
-	private int[] level;
+	//private int[] level;
 	private String lnEnd = "\n";
+	private TreeNode<Car> tree;
 	
-	public Tree2XMLConverter(int TreeDepth)
+	public Tree2XMLConverter(TreeNode<Car> _tree)
 	{
+		tree = _tree;
 		makeHeader();
-		level = new int[TreeDepth];
+		
+	//	level = new int[TreeDepth];
 	}
 	
 	public void makeHeader()
@@ -322,29 +333,42 @@ class Tree2XMLConverter
 	
 	public void AddLineNode(int depth, String classes, String entropy, String attribute, String value)
 	{
-		CheckOpenNodes(depth);
+		//CheckOpenNodes(depth);
+		for (int i = 0; i < depth; i++)
+		{
+			XML += "    "
+		}
 		XML+= "<node> classes="+I+classes+I+ " entropy="+I+entropy+I+" "+attribute+"="+I+value+I+">"+lnEnd;
-		this.level[depth]++;		
+		//this.level[depth]++;		
 	}
 
 	public void AddLineLeaf(int depth,String classes, String entropy, String attribute, String value, String Class)
 	{
-		CheckOpenNodes(depth);
+		//CheckOpenNodes(depth);
+		for (int i = 0; i < depth; i++)
+		{
+			XML += "    "
+		}
 		XML+= "<node> classes="+I+classes+I+ " entropy="+I+entropy+I+" "+attribute+"="+I+value+I+">"+Class+"</node>"+lnEnd;	
 	}
 	
+	//nicht benötigt
 	void CheckOpenNodes(int depth) 
 	{
 		for (int i = depth; i <= this.level.length ; i++)
 		{
-			if (this.level[i] > 0)
-				CloseNode();
+			//if (this.level[i] > 0)
+			//	CloseNode();
 		}
 	}
 
-	void CloseNode() 
+	void CloseNode(int depth) 
 	{
-		XML += "</node>";
+		for (int i = 0; i < depth; i++)
+		{
+			XML += "    "
+		}
+		XML += "</node>"+lnEnd;
 	}
 	
 	public void FinishTree()
@@ -352,6 +376,58 @@ class Tree2XMLConverter
 		XML += "</tree>";
 	}
 	
-
+	public void write(TreeNode<Car> tree, int _depth)
+	{
+		if(tree.isPure())
+		{
+			AddLineLeaf(_depth, getclasses(tree), tree.entropy.toString(), tree.attribute.toString(), tree.attributevalue, getClass(tree));
+		}
+		else
+		{
+			for(TreeNode<Car> t : tree.children)
+			{
+				AddLineNode(_depth, getclasses(t), t.entropy.toString(), t.attribute.toString(), t.attributevalue);
+				write(t, _depth+1);
+				CloseNode(_depth); 
+			}
+		}
+		
+	}
+	public String getClass(TreeNode<Car> _tree)
+	{
+		return _tree.data[0].classification.toString();
+	}
+	
+	public String getclasses(TreeNode<Car> _tree)
+	{
+		ArrayList<Car> unacc = new ArrayList<Car>();
+		ArrayList<Car> acc = new ArrayList<Car>();
+		ArrayList<Car> good = new ArrayList<Car>();
+		ArrayList<Car> vgood = new ArrayList<Car>();
+		
+		for(int i = 0; i < this.tree; i++)
+		{
+			switch(_tree.data[i].classification)
+			{
+				case Classification.unacc:
+					unacc.add(_tree.data[i]);
+					break;
+				case Classification.acc:
+					acc.add(_tree.data[i]);
+					break;
+				case Classification.good:
+					good.add(_tree.data[i]);
+					break;
+				case Classification.vgood:
+					vgood.add(_tree.data[i]);
+					break;
+				default:
+					unacc.add(_tree.data[i]);
+					break;
+			}
+		}
+		
+		return "unacc:" + unacc.Size().toString() + ",acc:" + acc.Size().toString() + ",good:" + good.Size().toString() + ",vgood:" + vgood.Size().toString();
+	}
 }
 }
