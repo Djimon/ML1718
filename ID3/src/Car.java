@@ -5,10 +5,11 @@ public class Car
 	public enum Classification{unacc, acc, good, vgood}
 	public enum Buying{vhigh, high, med, low}
 	public enum Maint{vhigh, high, med, low}
-	public enum Doors{Two, Four, Fivemore}
+	public enum Doors{Two, Three, Four, Fivemore}
 	public enum Persons{Two, Four, More}
 	public enum Lug_Boot{small, med, big}
 	public enum Safety{low, med, high}
+	public enum Attributes (Buying, Maint, Doors, Persons, Lug_Boot, Safety);
 
 	Classification classification;
 	Buying buying;
@@ -36,6 +37,7 @@ public class Car
 		else maint = Maint.low;
 		
 		if(door.equals("4")) doors = Doors.Four;
+		else if(door.equals("3")) doors = Doors.Three;
 		else if(door.equals("5more")) doors = Doors.Fivemore;
 		else doors = Doors.Two;
 		
