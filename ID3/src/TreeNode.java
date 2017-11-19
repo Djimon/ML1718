@@ -1,8 +1,9 @@
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Stack;
 
 
+
+@SuppressWarnings("hiding")
 class TreeNode<Car>
 {
 	private SubCar dataList[];
@@ -14,8 +15,8 @@ class TreeNode<Car>
     String attributevalue;
     private int depth;
 
-    public int StackCounter = 0;
-    public int k = 0;
+    public static int StackCounter = 0;
+    public static int k = 0;
     
     public boolean isRoot() 
     {
@@ -29,6 +30,7 @@ class TreeNode<Car>
 	
 	public boolean isPure()
 	{
+		System.out.println(".Testing if tree is pure ("+dataList.length+" entries)");
 		for(int i = 1; i < dataList.length; i++)
 		{
 			if(dataList[i].classification != dataList[i-1].classification) return false;
@@ -58,6 +60,7 @@ class TreeNode<Car>
 		for(int i=0; i<child.size();i++)
 		{
 			results[i] = child.get(i);
+			k++;
 		}
     	TreeNode<Car> childNode = new TreeNode<Car>(child);
     	childNode.dataList = results;
@@ -67,6 +70,7 @@ class TreeNode<Car>
     	childNode.attribute = buying;
     	childNode.attributevalue = val;
     	this.children.add(childNode);
+    	System.out.println("treesize: "+k);
     	return;
     }
     
@@ -89,19 +93,21 @@ class TreeNode<Car>
     { 
     	StackCounter += 1;
 		Attribute att = getMaxGain(this.entropy, this.data);
+		System.out.println("best Attribut:" +att.toString());
 		this.split(att);
 		Iterator<TreeNode<Car>> IT = this.children.iterator();
 		while (IT.hasNext())
 		{
-			k += 1;
 			TreeNode<Car> temp = IT.next();
+			if (k > 100000)
+			{
+				System.out.println("tree building interrupted: treesize is abut to explode");
+				System.out.println("StackCounter:"+StackCounter);
+				
+				return;
+			}
     		if(! temp.isPure()) temp._buildTree();			
 		}
-		for(TreeNode<Car> t : this.children)
-    	{ 
-			
-    	} 
-		System.out.println("StackDepth= " + StackCounter);
 		return;
     }
     
@@ -253,6 +259,9 @@ class TreeNode<Car>
 		int count_acc = 0;
 		int count_good = 0;
 		int count_vgood = 0;
+		
+		if (cars.size() <= 1)
+			return 0;
 
 		// count absolute amounts of each class
 		for(SubCar c : cars)
@@ -282,17 +291,33 @@ class TreeNode<Car>
 		double p_good = (double)count_good / (double) count; 
 		double p_vgood = (double)count_vgood / (double) count; 
 		
+		/*
+		System.out.println("Probabilities of classes:");
+		System.out.println("unacc:"+p_unacc);
+		System.out.println("acc:"+p_acc);
+		System.out.println("good:"+p_good);
+		System.out.println("vgood:"+p_vgood);
+		*/
+		
 		// calculate entropy
 		double entropy = -1*p_unacc * getlogn(p_unacc, 4) 
 						 -1*p_acc * getlogn(p_acc, 4) 
 						 -1*p_good * getlogn(p_good, 4) 
 						 -1*p_vgood * getlogn(p_vgood, 4);	
+		
+		//System.out.println("Entropy:" +entropy);
+		if (Double.isNaN(entropy))
+			return 0;
 		return entropy;
 	}
 	
 	public double getlogn(double p_unacc, int base)
 	{
-		return Math.log(p_unacc)/Math.log(base);
+		double res = Math.log(p_unacc)/Math.log(base);
+		if (Double.isNaN(res))
+			return 0;
+		else
+			return res;		
 	}
 	
 	public double getGain(double latest_Entropy, ArrayList<SubCar> cars, Attribute attr)
@@ -311,7 +336,6 @@ class TreeNode<Car>
 			for (int i = 0; i < cars.size(); i++)
 			{
 				SubCar T = (SubCar) cars.get(i);
-				//TODO: global enums
 				if(T.buying == Buying.vhigh) b_vhigh.add(cars.get(i));
 				else if(T.buying == Buying.high) b_high.add(cars.get(i));
 				else if(T.buying == Buying.med) b_med.add(cars.get(i));

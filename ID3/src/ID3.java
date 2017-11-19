@@ -1,17 +1,13 @@
 import java.util.ArrayList;
 
-import sun.reflect.generics.tree.Tree;
-
 import java.lang.Math;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.Object;
 
 
-@SuppressWarnings("restriction")
 public class ID3 
 {
 
@@ -19,9 +15,6 @@ public class ID3
 	//TreeNode<String> test = new TreeNode<String>("root");
 	
 	
-	private int TreeDepth = 100; //just for testing, to be filled with correct treeDepth
-	//Tree2XMLConverter XMLConverter = new Tree2XMLConverter(TreeDepth);
-
 	public static void main(String[] args) throws IOException
 	{
 		System.out.println("Reading the data...");
@@ -47,8 +40,10 @@ public class ID3
 		printer.AddLineTree("unacc, acc, good, vgood", Double.toString(getEntropy(CarZ)));
 		printer.write(Tree, 0);
 		printer.FinishTree();
-		printer.SaveToFile();
 		System.out.println("Saving XML to file...");
+		printer.SaveToFile();
+		System.out.println("FINISHED");
+		
 	}
 
 	public static SubCar[] read(String filepath)
@@ -77,14 +72,16 @@ public class ID3
 		return results;
 	}
 
-	public static ArrayList<SubCar> read2(String filepath)
+	public static ArrayList<SubCar> read2(String filepath) throws IOException
 	{
 		ArrayList<SubCar> Cardata = new ArrayList<SubCar>();
 		try (BufferedReader br = new BufferedReader(new FileReader(new File(filepath)))) {
 			String line;
+			
 			while ((line = br.readLine()) != null) {
 				String delims = "[,]";
-				String[] tokens = line.split(delims);	    	
+				String[] tokens = line.split(delims);	
+				//System.out.println("..Token:"+tokens[0]+tokens[1]+tokens[2]+tokens[3]+tokens[4]+tokens[5]+tokens[6]);
 				Cardata.add(new SubCar(tokens[0],tokens[1],tokens[2],tokens[3],tokens[4],tokens[5],tokens[6]));
 			}
 		} catch (FileNotFoundException e) {

@@ -8,11 +8,8 @@ class Tree2XMLConverter
 		private char I = '"';
 		//private int[] level;
 		private String lnEnd = "\n";
-		private TreeNode<SubCar> tree;
-		
 		public Tree2XMLConverter(TreeNode<SubCar> tree2)
 		{
-			tree = tree2;
 			makeHeader();
 			
 		//	level = new int[TreeDepth];
@@ -102,7 +99,7 @@ class Tree2XMLConverter
 			ArrayList<Car> good = new ArrayList<Car>();
 			ArrayList<Car> vgood = new ArrayList<Car>();
 			
-			for(int i = 0; i < 100 ; i++) //TODO: Größe de Baumes einfügen
+			for(int i = 0; i < tree2.data.size() ; i++) //TODO: Größe de Baumes einfügen
 			{
 				switch(tree2.data.get(i).classification)
 				{
@@ -129,7 +126,7 @@ class Tree2XMLConverter
 		
 	public void SaveToFile() throws IOException
 	{
-		FileWriter writer = new FileWriter("XMLTree_CD_KP.csv");
+		FileWriter writer = new FileWriter("XMLTree_CD_KP.xml");
 		writer.append(XML);	
 		writer.close();
 	}
