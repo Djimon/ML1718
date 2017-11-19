@@ -1,0 +1,1 @@
+public enum Persons{Two, Four, More}

@@ -1,23 +1,14 @@
 
-
-public class Car 
+class Car implements Cloneable
 {
-	public enum Classification{unacc, acc, good, vgood}
-	public enum Buying{vhigh, high, med, low}
-	public enum Maint{vhigh, high, med, low}
-	public enum Doors{Two, Three, Four, Fivemore}
-	public enum Persons{Two, Four, More}
-	public enum Lug_Boot{small, med, big}
-	public enum Safety{low, med, high}
-	public enum Attributes (Buying, Maint, Doors, Persons, Lug_Boot, Safety);
 
-	Classification classification;
-	Buying buying;
-	Maint maint;
-	Doors doors;
-	Persons persons;
-	Lug_Boot lug_boot;
-	Safety safety;
+	public Classification classification;
+	public Buying buying;
+	public Maint maint;
+	public Doors doors;
+	public Persons persons;
+	public Lug_Boot lug_boot;
+	public Safety safety;
 	
 	public Car(String buy, String mai, String door, String pers, String lug, String saf,String classi )
 	{
@@ -54,9 +45,38 @@ public class Car
 		else safety = Safety.low;
 	}
 	
+	public Car Clone() throws CloneNotSupportedException
+	{
+		return new Car(buying.toString(),maint.toString(),doors.toString(),persons.toString(),lug_boot.toString(),safety.toString(),classification.toString());
+	}
+	
 	public String ToString()
 	{
 		return( "Class: " + classification.toString() + "; Doors: "+ doors.toString());
+	}
+	
+}
+
+class SubCar extends Car
+{
+	public void CopyCar(Car c)
+	{
+		this.buying = c.buying;
+		this.classification = c.classification;
+		this.doors = c.doors;
+		this.lug_boot = c.lug_boot;
+		this.maint = c.maint;
+		this.persons = c.persons;
+		this.safety = c.safety;
+	}
+	
+	public SubCar()
+	{
+		super("","","","","","","");
+	}
+	
+	public SubCar(String buy, String mai, String door, String pers, String lug, String saf, String classi) {
+		super(buy, mai, door, pers, lug, saf, classi);
 	}
 	
 }

@@ -1,0 +1,1 @@
+public enum Buying{vhigh, high, med, low}

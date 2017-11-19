@@ -1,0 +1,1 @@
+public enum Doors{Two, Three, Four, Fivemore}
