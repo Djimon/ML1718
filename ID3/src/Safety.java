@@ -1,0 +1,1 @@
+public enum Safety{low, med, high}

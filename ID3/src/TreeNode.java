@@ -1,26 +1,22 @@
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 
-import com.sun.org.apache.xalan.internal.xsltc.runtime.Attributes;
 
-public class TreeNode<Car>
+
+@SuppressWarnings("hiding")
+class TreeNode<Car>
 {
-    private ArrayList<Car> data;
+	private SubCar dataList[];
+    ArrayList<SubCar> data;
     private TreeNode<Car> parent;
-    private ArrayList<TreeNode<Car>> children;
-    private double entropy;
-    private Attributes attribute;
-    private String attributevalue;
+    ArrayList<TreeNode<Car>> children;
+    double entropy;
+    Attribute attribute;
+    String attributevalue;
     private int depth;
-    
-	public enum Classification{unacc, acc, good, vgood}
-	public enum Buying{vhigh, high, med, low}
-	public enum Maint{vhigh, high, med, low}
-	public enum Doors{Two, Three, Four, Fivemore}
-	public enum Persons{Two, Four, More}
-	public enum Lug_Boot{small, med, big}
-	public enum Safety{low, med, high}
-	public enum Attributes (Buying, Maint, Doors, Persons, Lug_Boot, Safety);
+
+    public static int StackCounter = 0;
+    public static int k = 0;
     
     public boolean isRoot() 
     {
@@ -34,30 +30,47 @@ public class TreeNode<Car>
 	
 	public boolean isPure()
 	{
-		for(int i = 1; i < data.Size(); i++)
+		System.out.println(".Testing if tree is pure ("+dataList.length+" entries)");
+		for(int i = 1; i < dataList.length; i++)
 		{
-			if(data[i].classification != data[i-1].classification) return false;
+			if(dataList[i].classification != dataList[i-1].classification) return false;
 		}
 		
 		return true;
 	}
+	public TreeNode(ArrayList<SubCar> input)
+	{
+		this.data = input;
+		this.children = new ArrayList<TreeNode<Car>>();
+    	this.entropy = getEntropy(this.data);
+	}
 
-    public TreeNode(ArrayList<Car> input)
+    public TreeNode (Car[] input, ArrayList<SubCar> input2)
     {
-    	this.data = input;
+    	this.data = input2;
+    	this.dataList = (SubCar[]) input.clone();
     	this.children = new ArrayList<TreeNode<Car>>();
-    	this.entropy = ID3.getEntropy(this.data);
+    	this.entropy = getEntropy(this.data);
     }
     
-    public void addChild(ArrayList<Car> child, Attributes attr, String val)
+    public void addChild(ArrayList<SubCar> child, Attribute buying, String val)
     {
+    	SubCar results[] = new SubCar[child.size()];
+		
+		for(int i=0; i<child.size();i++)
+		{
+			results[i] = child.get(i);
+			k++;
+		}
     	TreeNode<Car> childNode = new TreeNode<Car>(child);
+    	childNode.dataList = results;
     	childNode.depth = this.depth + 1;
-    	childNode.parent = this;
-    	childNode.entropy = ID3.getEntropy(child);
-    	childNode.attribute = attr;
+    	childNode.parent = (TreeNode<Car>) this;
+    	childNode.entropy = getEntropy(child);
+    	childNode.attribute = buying;
     	childNode.attributevalue = val;
     	this.children.add(childNode);
+    	System.out.println("treesize: "+k);
     	return;
     }
     
@@ -65,166 +78,418 @@ public class TreeNode<Car>
     public void buildTree()
     {
     	this.depth = 1;
-    	this.entropy = ID3.getEntropy(this.data);
-    	Attributes att = ID3.getMaxGain(this.entropy, this.data);
+    	this.entropy = getEntropy(this.data);
+    	Attribute att = getMaxGain(this.entropy, this.data);
     	this.split(att);
     	for(TreeNode<Car> t : this.children)
     	{ 
-    		if(!t.isPure) t._buildTree();
+    		if(!t.isPure()) t._buildTree();
     	}  	
     	return;
     }
     
     // recursive tree building
     public void _buildTree()
-    {    	
-    		Attributes att = ID3.getMaxGain(this.entropy, this.data)
-    		this.split(att);
-    		for(TreeNode<Car> t : this.children)
-        	{ 
-        		if(!t.isPure) t._buildTree();
-        	} 
-    		return;
+    { 
+    	StackCounter += 1;
+		Attribute att = getMaxGain(this.entropy, this.data);
+		System.out.println("best Attribut:" +att.toString());
+		this.split(att);
+		Iterator<TreeNode<Car>> IT = this.children.iterator();
+		while (IT.hasNext())
+		{
+			TreeNode<Car> temp = IT.next();
+			if (k > 100000)
+			{
+				System.out.println("tree building interrupted: treesize is abut to explode");
+				System.out.println("StackCounter:"+StackCounter);
+				
+				return;
+			}
+    		if(! temp.isPure()) temp._buildTree();			
+		}
+		return;
     }
     
     // Splits data according to splitting attribute and adds children to the tree
-    public void split(Attributes attr)
+    public void split(Attribute attr)
     {
     	switch(attr)
     	{
-    		case Attributes.Buying:
-    			ArrayList<Car> b_vhigh = new ArrayList<Car>();
-    			ArrayList<Car> b_high = new ArrayList<Car>();
-    			ArrayList<Car> b_med = new ArrayList<Car>();
-    			ArrayList<Car> b_low = new ArrayList<Car>();
+    		case Buying:
+    			ArrayList<SubCar> b_vhigh = new ArrayList<SubCar>();
+    			ArrayList<SubCar> b_high = new ArrayList<SubCar>();
+    			ArrayList<SubCar> b_med = new ArrayList<SubCar>();
+    			ArrayList<SubCar> b_low = new ArrayList<SubCar>();
     			
-    			for (int i = 0; i < this.data.Size(); i++)
+    			for (int i = 0; i < this.dataList.length; i++)
     			{
-    				if(cars[i].buying == Buying.vhigh) b_vhigh.add(cars[i]);
-    				else if(cars[i].buying == Buying.high) b_high.add(cars[i]);
-    				else if(cars[i].buying == Buying.med) b_med.add(cars[i]);
-    				else b_low.add(cars[i]);
+    				if(dataList[i].buying == Buying.vhigh) b_vhigh.add( dataList[i]);
+    				else if(dataList[i].buying == Buying.high) b_high.add(dataList[i]);
+    				else if(dataList[i].buying == Buying.med) b_med.add(dataList[i]);
+    				else b_low.add(dataList[i]);
     			}
     			
-    			if(!b_vhigh.isEmpty()) this.addChild(b_vhigh, Attributes.Buying, "vhigh");
-    			if(!b_high.isEmpty()) this.addChild(b_high, Attributes.Buying, "high");
-    			if(!b_med.isEmpty()) this.addChild(b_med, Attributes.Buying, "med");
-    			if(!b_low.isEmpty()) this.addChild(b_low, Attributes.Buying, "low");
+    			if(!b_vhigh.isEmpty()) this.addChild(b_vhigh, Attribute.Buying, "vhigh");
+    			if(!b_high.isEmpty()) this.addChild(b_high, Attribute.Buying, "high");
+    			if(!b_med.isEmpty()) this.addChild(b_med, Attribute.Buying, "med");
+    			if(!b_low.isEmpty()) this.addChild(b_low, Attribute.Buying, "low");
     			break;
     		
-    		case Attributes.Maint:
-    			ArrayList<Car> m_vhigh = new ArrayList<Car>();
-    			ArrayList<Car> m_high = new ArrayList<Car>();
-    			ArrayList<Car> m_med = new ArrayList<Car>();
-    			ArrayList<Car> m_low = new ArrayList<Car>();
+    		case Maint:
+    			ArrayList<SubCar> m_vhigh = new ArrayList<SubCar>();
+    			ArrayList<SubCar> m_high = new ArrayList<SubCar>();
+    			ArrayList<SubCar> m_med = new ArrayList<SubCar>();
+    			ArrayList<SubCar> m_low = new ArrayList<SubCar>();
     			
-    			for (int i = 0; i < cars.Size(); i++)
+    			for (int i = 0; i < data.size(); i++)
     			{
-    				if(cars[i].maint == Maint.vhigh) m_vhigh.add(cars[i]);
-    				else if(cars[i].maint == Maint.high) m_high.add(cars[i]);
-    				else if(cars[i].maint == Maint.med) m_med.add(cars[i]);
-    				else m_low.add(cars[i]);
+    				if(dataList[i].maint == Maint.vhigh) m_vhigh.add(dataList[i]);
+    				else if(dataList[i].maint == Maint.high) m_high.add(dataList[i]);
+    				else if(dataList[i].maint == Maint.med) m_med.add(dataList[i]);
+    				else m_low.add(dataList[i]);
     			}
     			
-    			if(!m_vhigh.isEmpty()) this.addChild(m_vhigh, Attributes.Maint, "vhigh");
-    			if(!m_high.isEmpty()) this.addChild(m_high, Attributes.Maint, "high");
-    			if(!m_med.isEmpty()) this.addChild(m_med, Attributes.Maint, "med");
-    			if(!m_low.isEmpty()) this.addChild(m_low, Attributes.Maint, "low");
+    			if(!m_vhigh.isEmpty()) this.addChild(m_vhigh, Attribute.Maint, "vhigh");
+    			if(!m_high.isEmpty()) this.addChild(m_high, Attribute.Maint, "high");
+    			if(!m_med.isEmpty()) this.addChild(m_med, Attribute.Maint, "med");
+    			if(!m_low.isEmpty()) this.addChild(m_low, Attribute.Maint, "low");
     			break;
     		
-    		case Attributes.Doors:
-    			ArrayList<Car> d_two = new ArrayList<Car>();
-    			ArrayList<Car> d_three = new ArrayList<Car>();
-    			ArrayList<Car> d_four = new ArrayList<Car>();
-    			ArrayList<Car> d_fivemore = new ArrayList<Car>();
+    		case Doors:
+    			ArrayList<SubCar> d_two = new ArrayList<SubCar>();
+    			ArrayList<SubCar> d_three = new ArrayList<SubCar>();
+    			ArrayList<SubCar> d_four = new ArrayList<SubCar>();
+    			ArrayList<SubCar> d_fivemore = new ArrayList<SubCar>();
     			
-    			for (int i = 0; i < cars.Size(); i++)
+    			for (int i = 0; i < data.size(); i++)
     			{
-    				if(cars[i].doors == Doors.Two) d_two.add(cars[i]);
-    				else if(cars[i].doors == Doors.Three) d_three.add(cars[i]);
-    				else if(cars[i].doors == Doors.Four) d_four.add(cars[i]);
-    				else d_fivemore.add(cars[i]);
+    				if(dataList[i].doors == Doors.Two) d_two.add(dataList[i]);
+    				else if(dataList[i].doors == Doors.Three) d_three.add(dataList[i]);
+    				else if(dataList[i].doors == Doors.Four) d_four.add(dataList[i]);
+    				else d_fivemore.add(dataList[i]);
     			}
     			
-    			if(!d_two.isEmpty()) this.addChild(d_two, Attributes.Doors, "Two");
-    			if(!d_three.isEmpty()) this.addChild(d_three, Attributes.Doors, "Three");
-    			if(!d_four.isEmpty()) this.addChild(d_four, Attributes.Doors, "Four");
-    			if(!d_fivemore.isEmpty()) this.addChild(d_fivemore, Attributes.Doors, "Fivemore");
+    			if(!d_two.isEmpty()) this.addChild(d_two, Attribute.Doors, "Two");
+    			if(!d_three.isEmpty()) this.addChild(d_three, Attribute.Doors, "Three");
+    			if(!d_four.isEmpty()) this.addChild(d_four, Attribute.Doors, "Four");
+    			if(!d_fivemore.isEmpty()) this.addChild(d_fivemore, Attribute.Doors, "Fivemore");
     			break;
     		
-    		case Attributes.Persons:
-    			ArrayList<Car> p_two = new ArrayList<Car>();
-    			ArrayList<Car> p_four = new ArrayList<Car>();
-    			ArrayList<Car> p_more = new ArrayList<Car>();
+    		case Persons:
+    			ArrayList<SubCar> p_two = new ArrayList<SubCar>();
+    			ArrayList<SubCar> p_four = new ArrayList<SubCar>();
+    			ArrayList<SubCar> p_more = new ArrayList<SubCar>();
     			
-    			for (int i = 0; i < cars.Size(); i++)
+    			for (int i = 0; i < data.size(); i++)
     			{
-    				if(cars[i].persons == Persons.Two) p_two.add(cars[i]);
-    				else if(cars[i].persons == Persons.Four) p_four.add(cars[i]);
-    				else p_more.add(cars[i]);
+    				if(dataList[i].persons == Persons.Two) p_two.add(dataList[i]);
+    				else if(dataList[i].persons == Persons.Four) p_four.add(dataList[i]);
+    				else p_more.add(dataList[i]);
     			}
     			
-    			if(!p_two.isEmpty()) this.addChild(p_two, Attributes.Persons, "Two");
-    			if(!p_four.isEmpty()) this.addChild(p_four, Attributes.Persons, "Four");
-    			if(!p_more.isEmpty()) this.addChild(p_more, Attributes.Persons, "More");
+    			if(!p_two.isEmpty()) this.addChild(p_two, Attribute.Persons, "Two");
+    			if(!p_four.isEmpty()) this.addChild(p_four, Attribute.Persons, "Four");
+    			if(!p_more.isEmpty()) this.addChild(p_more, Attribute.Persons, "More");
     			break;
     		
-    		case Attributes.Lug_Boot:
-    			ArrayList<Car> l_small = new ArrayList<Car>();
-    			ArrayList<Car> l_med = new ArrayList<Car>();
-    			ArrayList<Car> l_big = new ArrayList<Car>();
+    		case Lug_Boot:
+    			ArrayList<SubCar> l_small = new ArrayList<SubCar>();
+    			ArrayList<SubCar> l_med = new ArrayList<SubCar>();
+    			ArrayList<SubCar> l_big = new ArrayList<SubCar>();
     			
-    			for (int i = 0; i < cars.Size(); i++)
+    			for (int i = 0; i < data.size(); i++)
     			{
-    				if(cars[i].lug_boot == Lug_Boot.small) l_small.add(cars[i]);
-    				else if(cars[i].lug_boot == Lug_Boot.med) l_med.add(cars[i]);
-    				else l_big.add(cars[i]);
+    				if(dataList[i].lug_boot == Lug_Boot.small) l_small.add(dataList[i]);
+    				else if(dataList[i].lug_boot == Lug_Boot.med) l_med.add(dataList[i]);
+    				else l_big.add(dataList[i]);
     			}
     			
-    			if(!l_small.isEmpty()) this.addChild(l_small, Attributes.Persons, "small");
-    			if(!l_med.isEmpty()) this.addChild(l_med, Attributes.Persons, "med");
-    			if(!l_big.isEmpty()) this.addChild(l_big, Attributes.Persons, "big");
+    			if(!l_small.isEmpty()) this.addChild(l_small, Attribute.Persons, "small");
+    			if(!l_med.isEmpty()) this.addChild(l_med, Attribute.Persons, "med");
+    			if(!l_big.isEmpty()) this.addChild(l_big, Attribute.Persons, "big");
     			break;
     		
-    		case Attributes.Safety:
-    			ArrayList<Car> s_low = new ArrayList<Car>();
-    			ArrayList<Car> s_med = new ArrayList<Car>();
-    			ArrayList<Car> s_high = new ArrayList<Car>();
+    		case Safety:
+    			ArrayList<SubCar> s_low = new ArrayList<SubCar>();
+    			ArrayList<SubCar> s_med = new ArrayList<SubCar>();
+    			ArrayList<SubCar> s_high = new ArrayList<SubCar>();
     			
-    			for (int i = 0; i < cars.Size(); i++)
+    			for (int i = 0; i < data.size(); i++)
     			{
-    				if(cars[i].safety == Safety.low) s_low.add(cars[i]);
-    				else if(cars[i].safety == Safety.med) s_med.add(cars[i]);
-    				else s_high.add(cars[i]);
+    				if(dataList[i].safety == Safety.low) s_low.add(dataList[i]);
+    				else if(dataList[i].safety == Safety.med) s_med.add(dataList[i]);
+    				else s_high.add(dataList[i]);
     			}
     			
-    			if(!s_low.isEmpty()) this.addChild(s_low, Attributes.Persons, "low");
-    			if(!s_med.isEmpty()) this.addChild(s_med, Attributes.Persons, "med");
-    			if(!s_high.isEmpty()) this.addChild(s_high, Attributes.Persons, "high");
+    			if(!s_low.isEmpty()) this.addChild(s_low, Attribute.Persons, "low");
+    			if(!s_med.isEmpty()) this.addChild(s_med, Attribute.Persons, "med");
+    			if(!s_high.isEmpty()) this.addChild(s_high, Attribute.Persons, "high");
     			break;
     		
     		default:
-    			ArrayList<Car> b_vhigh = new ArrayList<Car>();
-    			ArrayList<Car> b_high = new ArrayList<Car>();
-    			ArrayList<Car> b_med = new ArrayList<Car>();
-    			ArrayList<Car> b_low = new ArrayList<Car>();
+    			ArrayList<SubCar> b_vhigh2 = new ArrayList<SubCar>();
+    			ArrayList<SubCar> b_high2 = new ArrayList<SubCar>();
+    			ArrayList<SubCar> b_med2 = new ArrayList<SubCar>();
+    			ArrayList<SubCar> b_low2 = new ArrayList<SubCar>();
     			
-    			for (int i = 0; i < this.data.Size(); i++)
+    			for (int i = 0; i < this.data.size(); i++)
     			{
-    				if(cars[i].buying == Buying.vhigh) b_vhigh.add(cars[i]);
-    				else if(cars[i].buying == Buying.high) b_high.add(cars[i]);
-    				else if(cars[i].buying == Buying.med) b_med.add(cars[i]);
-    				else b_low.add(cars[i]);
+    				if(dataList[i].buying == Buying.vhigh) b_vhigh2.add( dataList[i]);
+    				else if(dataList[i].buying == Buying.high) b_high2.add(dataList[i]);
+    				else if(dataList[i].buying == Buying.med) b_med2.add(dataList[i]);
+    				else b_low2.add(dataList[i]);
     			}
     			
-    			if(!b_vhigh.isEmpty()) this.addChild(b_vhigh, Attributes.Buying, "vhigh");
-    			if(!b_high.isEmpty()) this.addChild(b_high, Attributes.Buying, "high");
-    			if(!b_med.isEmpty()) this.addChild(b_med, Attributes.Buying, "med");
-    			if(!b_low.isEmpty()) this.addChild(b_low, Attributes.Buying, "low");
+    			if(!b_vhigh2.isEmpty()) this.addChild(b_vhigh2, Attribute.Buying, "vhigh");
+    			if(!b_high2.isEmpty()) this.addChild(b_high2, Attribute.Buying, "high");
+    			if(!b_med2.isEmpty()) this.addChild(b_med2, Attribute.Buying, "med");
+    			if(!b_low2.isEmpty()) this.addChild(b_low2, Attribute.Buying, "low");
     			break;
     	}
     	
     	return;
     }
     
+
+	public double getEntropy(ArrayList<SubCar> cars)
+	{
+		int count = cars.size();
+		int count_unacc = 0;
+		int count_acc = 0;
+		int count_good = 0;
+		int count_vgood = 0;
+		
+		if (cars.size() <= 1)
+			return 0;
+
+		// count absolute amounts of each class
+		for(SubCar c : cars)
+		{
+			switch(c.classification)
+			{
+			case unacc:
+				count_acc++;
+				break;
+			case acc:
+				count_unacc++;
+				break;
+			case good:
+				count_good++;
+				break;
+			case vgood:
+				count_vgood++;
+				break;
+			default:
+				count_unacc++;
+				break;
+			}
+		}
+		// calculate proportions
+		double p_unacc = (double)count_unacc / (double) count; 
+		double p_acc = (double)count_acc / (double) count; 
+		double p_good = (double)count_good / (double) count; 
+		double p_vgood = (double)count_vgood / (double) count; 
+		
+		/*
+		System.out.println("Probabilities of classes:");
+		System.out.println("unacc:"+p_unacc);
+		System.out.println("acc:"+p_acc);
+		System.out.println("good:"+p_good);
+		System.out.println("vgood:"+p_vgood);
+		*/
+		
+		// calculate entropy
+		double entropy = -1*p_unacc * getlogn(p_unacc, 4) 
+						 -1*p_acc * getlogn(p_acc, 4) 
+						 -1*p_good * getlogn(p_good, 4) 
+						 -1*p_vgood * getlogn(p_vgood, 4);	
+		
+		//System.out.println("Entropy:" +entropy);
+		if (Double.isNaN(entropy))
+			return 0;
+		return entropy;
+	}
+	
+	public double getlogn(double p_unacc, int base)
+	{
+		double res = Math.log(p_unacc)/Math.log(base);
+		if (Double.isNaN(res))
+			return 0;
+		else
+			return res;		
+	}
+	
+	public double getGain(double latest_Entropy, ArrayList<SubCar> cars, Attribute attr)
+	{
+		double gain = latest_Entropy;
+
+		// calculates gain for specified Attribute
+		switch(attr)
+		{
+		case Buying :
+			ArrayList<SubCar> b_vhigh = (ArrayList<SubCar>) new ArrayList<SubCar>();
+			ArrayList<SubCar> b_high = new ArrayList<SubCar>();
+			ArrayList<SubCar> b_med = new ArrayList<SubCar>();
+			ArrayList<SubCar> b_low = new ArrayList<SubCar>();
+			
+			for (int i = 0; i < cars.size(); i++)
+			{
+				SubCar T = (SubCar) cars.get(i);
+				if(T.buying == Buying.vhigh) b_vhigh.add(cars.get(i));
+				else if(T.buying == Buying.high) b_high.add(cars.get(i));
+				else if(T.buying == Buying.med) b_med.add(cars.get(i));
+				else b_low.add(cars.get(i));
+				
+				gain -= ((b_vhigh.size()/cars.size()) * getEntropy(b_vhigh))
+						- ((b_high.size()/cars.size()) * getEntropy(b_high))
+						- ((b_med.size()/cars.size()) * getEntropy(b_med))
+						- ((b_low.size()/cars.size()) * getEntropy(b_low));
+			}
+			break;
+			
+		case Maint:
+			ArrayList<SubCar> m_vhigh = new ArrayList<SubCar>();
+			ArrayList<SubCar> m_high = new ArrayList<SubCar>();
+			ArrayList<SubCar> m_med = new ArrayList<SubCar>();
+			ArrayList<SubCar> m_low = new ArrayList<SubCar>();
+			
+			for (int i = 0; i < cars.size(); i++)
+			{
+				SubCar T = (SubCar) cars.get(i);
+				if(T.maint == Maint.vhigh) m_vhigh.add(cars.get(i));
+				else if(T.maint == Maint.high) m_high.add(cars.get(i));
+				else if(T.maint == Maint.med) m_med.add(cars.get(i));
+				else m_low.add(cars.get(i));
+				
+				gain -= ((m_vhigh.size()/cars.size()) * getEntropy(m_vhigh))
+						- ((m_high.size()/cars.size()) * getEntropy(m_high))
+						- ((m_med.size()/cars.size()) * getEntropy(m_med))
+						- ((m_low.size()/cars.size()) * getEntropy(m_low));
+			}
+			break;
+			
+		case Doors:
+			ArrayList<SubCar> d_two = new ArrayList<SubCar>();
+			ArrayList<SubCar> d_three = new ArrayList<SubCar>();
+			ArrayList<SubCar> d_four = new ArrayList<SubCar>();
+			ArrayList<SubCar> d_fivemore = new ArrayList<SubCar>();
+			
+			for (int i = 0; i < cars.size(); i++)
+			{
+				SubCar T = (SubCar) cars.get(i);
+				if(T.doors == Doors.Two) d_two.add(cars.get(i));
+				else if(T.doors == Doors.Three) d_three.add(cars.get(i));
+				else if(T.doors == Doors.Four) d_four.add(cars.get(i));
+				else d_fivemore.add(cars.get(i));
+				
+				gain -= ((d_two.size()/cars.size()) * getEntropy(d_two))
+						- ((d_three.size()/cars.size()) * getEntropy(d_three))
+						- ((d_four.size()/cars.size()) * getEntropy(d_four))
+						- ((d_fivemore.size()/cars.size()) * getEntropy(d_fivemore));
+			}
+			break;
+			
+		case Persons:
+			ArrayList<SubCar> p_two = new ArrayList<SubCar>();
+			ArrayList<SubCar> p_four = new ArrayList<SubCar>();
+			ArrayList<SubCar> p_more = new ArrayList<SubCar>();
+			
+			for (int i = 0; i < cars.size(); i++)
+			{
+				SubCar T = (SubCar) cars.get(i);
+				if(T.persons == Persons.Two) p_two.add(cars.get(i));
+				else if(T.persons == Persons.Four) p_four.add(cars.get(i));
+				else p_more.add(cars.get(i));
+				
+				gain -= ((p_two.size()/cars.size()) * getEntropy(p_two))
+						- ((p_four.size()/cars.size()) * getEntropy(p_four))
+						- ((p_more.size()/cars.size()) * getEntropy(p_more));
+			}
+			break;
+			
+		case Lug_Boot:
+			ArrayList<SubCar> l_small = new ArrayList<SubCar>();
+			ArrayList<SubCar> l_med = new ArrayList<SubCar>();
+			ArrayList<SubCar> l_big = new ArrayList<SubCar>();
+			
+			for (int i = 0; i < cars.size(); i++)
+			{
+				SubCar T = (SubCar) cars.get(i);
+				if(T.lug_boot == Lug_Boot.small) l_small.add(cars.get(i));
+				else if(T.lug_boot == Lug_Boot.med) l_med.add(cars.get(i));
+				else l_big.add(cars.get(i));
+				
+				gain -= ((l_small.size()/cars.size()) * getEntropy(l_small))
+						- ((l_med.size()/cars.size()) * getEntropy(l_med))
+						- ((l_big.size()/cars.size()) * getEntropy(l_big));
+			}
+			break;
+			
+		case Safety:
+			ArrayList<SubCar> s_low = new ArrayList<SubCar>();
+			ArrayList<SubCar> s_med = new ArrayList<SubCar>();
+			ArrayList<SubCar> s_high = new ArrayList<SubCar>();
+			
+			for (int i = 0; i < cars.size(); i++)
+			{
+				SubCar T = (SubCar) cars.get(i);
+				if(T.safety == Safety.low) s_low.add(cars.get(i));
+				else if(T.safety == Safety.med) s_med.add(cars.get(i));
+				else s_high.add(cars.get(i));
+				
+				gain -= ((s_low.size()/cars.size()) * getEntropy(s_low))
+						- ((s_med.size()/cars.size()) * getEntropy(s_med))
+						- ((s_high.size()/cars.size()) * getEntropy(s_high));
+			}
+			break;
+			
+			default:
+				ArrayList<SubCar> b_vhigh2 = new ArrayList<SubCar>();
+				ArrayList<SubCar> b_high2 = new ArrayList<SubCar>();
+				ArrayList<SubCar> b_med2 = new ArrayList<SubCar>();
+				ArrayList<SubCar> b_low2 = new ArrayList<SubCar>();
+				
+				for (int i = 0; i < cars.size(); i++)
+				{
+					SubCar T = (SubCar) cars.get(i);
+					if(T.buying == Buying.vhigh) b_vhigh2.add(cars.get(i));
+					else if(T.buying == Buying.high) b_high2.add(cars.get(i));
+					else if(T.buying == Buying.med) b_med2.add(cars.get(i));
+					else b_low2.add(cars.get(i));
+					
+					gain -= ((b_vhigh2.size()/cars.size()) * getEntropy(b_vhigh2))
+							- ((b_high2.size()/cars.size()) * getEntropy(b_high2))
+							- ((b_med2.size()/cars.size()) * getEntropy(b_med2))
+							- ((b_low2.size()/cars.size()) * getEntropy(b_low2));
+				}
+				break;
+		}	
+		return gain;
+	}
+	
+	public Attribute getMaxGain(double latest_Entropy, ArrayList<SubCar> cars)
+	{
+		double[] gain = new double[6];
+		gain[0] = getGain(latest_Entropy, cars, Attribute.Buying);
+		gain[1] = getGain(latest_Entropy, cars, Attribute.Maint);
+		gain[2] = getGain(latest_Entropy, cars, Attribute.Doors);
+		gain[3] = getGain(latest_Entropy, cars, Attribute.Persons);
+		gain[4] = getGain(latest_Entropy, cars, Attribute.Lug_Boot);
+		gain[5] = getGain(latest_Entropy, cars, Attribute.Safety);
+		
+		double maxgaintempvalue = gain[0];
+		int maxgaintempindex = 0;
+		for(int i= 1; i < gain.length; i++)
+		{
+			if(gain[i]>maxgaintempvalue)
+			{
+				maxgaintempvalue = gain[i];
+				maxgaintempindex = i;
+			}
+		}
+		
+		return Attribute.values()[maxgaintempindex];
+	}
+	
 }
