@@ -37,9 +37,160 @@ def train(training):
 
 def predict(test, probs):
     pred_classification = []
-    #...
-    # pred_classification wird für jeden Eintrag der Test-Daten ein String in die Liste angehängt wie bei geterror
+    testdata = test.split("\n")
+
+    for i in testdata:
+        # get Evidence
+        p_evidence = getEvidence(testdata[i], probs)
+
+        # get probability for each possible class
+        values = getprobs(testdata[i], probs, 'unacc')
+        p_unacc = values/ p_evidence
+
+        values = getprobs(testdata[i], probs, 'acc')
+        p_acc = values/ p_evidence
+
+        values = getprobs(testdata[i], probs, 'good')
+        p_good = values/ p_evidence
+
+        values = getprobs(testdata[i], probs, 'vgood')
+        p_vgood = values/ p_evidence
+
+        # which class should be assigned
+        highestprobability = max(p_unacc, p_acc, p_good, p_vgood)
+
+        # append class information to list
+        if highestprobability == p_unacc:
+            pred_classification.append(pred_classification, 'unacc')
+        if highestprobability == p_acc:
+            pred_classification.append(pred_classification, 'acc')
+        if highestprobability == p_good:
+            pred_classification.append(pred_classification, 'good')
+        if highestprobability == p_vgood:
+            pred_classification.append(pred_classification, 'vgood')
+
     return pred_classification
+
+def getEvidence(dataline, probabilities):
+    # für jede Wahrscheinlichkeit entsprechend richtige Zeile(unterste) und Spalte auswählen (Zeile=Klasse=Gesamtanzahl dieser Ausprägung der Variable; Spalte =b_vh usw.)
+    arr = dataline.split(",")
+    if arr[0] == "v-high":
+        p_b =
+    if arr[0] == "high":
+        p_b =
+    if arr[0] == "med":
+        p_b =
+    if arr[0] == "low":
+        p_b =
+
+    if arr[1] == "v-high":
+        p_m =
+    if arr[1] == "high":
+        p_m =
+    if arr[1] == "med":
+        p_m =
+    if arr[1] == "low":
+        p_m =
+
+    if arr[2] == "2":
+        p_d =
+    if arr[2] == "3":
+        p_d =
+    if arr[2] == "4":
+        p_d =
+    if arr[2] == "5-more":
+        p_d =
+
+    if arr[3] == "2":
+        p_p =
+    if arr[3] == "4":
+        p_p =
+    if arr[3] == "more":
+        p_p =
+
+    if arr[4] == "small":
+        p_l =
+    if arr[4] == "med":
+        p_l =
+    if arr[4] == "big":
+        p_l =
+
+    if arr[5] == "low":
+        p_s =
+    if arr[5] == "med":
+        p_s =
+    if arr[5] == "high":
+        p_s =
+
+    res = p_b*p_m*p_d*p_p*p_l*p_s
+    return res
+
+def getprobs(dataline, probabilities, testedclass):
+    # tableline gibt an, welche Zeile/Klasse der Tabelle gemeint ist
+    if testedclass == 'unacc':
+        tableline = 0
+    if testedclass == 'unacc':
+        tableline = 1
+    if testedclass == 'unacc':
+        tableline = 2
+    if testedclass == 'unacc':
+        tableline = 3
+
+    # für jede Wahrscheinlichkeit entsprechend richtige Zeile(tableline) und Spalte auswählen (Zeile=Klasse=testedClass; Spalte =b_vh usw.)
+    arr = dataline.split(",")
+    if arr[0] == "v-high":
+        p_b =
+    if arr[0] == "high":
+        p_b =
+    if arr[0] == "med":
+        p_b =
+    if arr[0] == "low":
+        p_b =
+
+    if arr[1] == "v-high":
+        p_m =
+    if arr[1] == "high":
+        p_m =
+    if arr[1] == "med":
+        p_m =
+    if arr[1] == "low":
+        p_m =
+
+    if arr[2] == "2":
+        p_d =
+    if arr[2] == "3":
+        p_d =
+    if arr[2] == "4":
+        p_d =
+    if arr[2] == "5-more":
+        p_d =
+
+    if arr[3] == "2":
+        p_p =
+    if arr[3] == "4":
+        p_p =
+    if arr[3] == "more":
+        p_p =
+
+    if arr[4] == "small":
+        p_l =
+    if arr[4] == "med":
+        p_l =
+    if arr[4] == "big":
+        p_l =
+
+    if arr[5] == "low":
+        p_s =
+    if arr[5] == "med":
+        p_s =
+    if arr[5] == "high":
+        p_s =
+
+    p_c =
+
+    res = p_b * p_m * p_d * p_p * p_l * p_s * p_c
+
+    return res
 
 '''
 calculates number of false positives and false negatives in relation to 
