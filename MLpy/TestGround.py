@@ -38,7 +38,41 @@ cardatapath = "cardaten\\car.data"
  auf numpy  mit "np" zugreifen
  
 '''
+
+'''
+Vor count-data und nach dem Auslesen der Datei müsste noch in Training und Test-data geteilt werden, oder?
+So ist ja alles Training-Data, was in der Datei steht. Darum gesplittet siehe unten
+'''
+'''
 countmatrix = core.countData(core.ReadCardataFromCSV(cardatapath))
 core.SaveMatrix2CSV(countmatrix, "count_matrix")
 print(str(countmatrix))
+'''
+
+
+data = core.ReadCardataFromCSV(cardatapath)
+output = [2]
+errors = []
+for i in range(0,100):
+    output = core.createRandomSample(data)
+    training = output[0]
+    test = output[1]
+    # hier erst countdata(training)
+    probs = core.train(training)
+    core.SaveMatrix2CSV(probs, "count_matrix")
+    print(str(probs))
+    result = core.predict(test, probs)
+    correct = core.countData(test)
+    errors.append(errors, core.geterror(result, correct))
+
+
+errorsum = 0
+
+for i in errors:
+    errorsum += errors[i]
+
+errorsum /= len(errors)
+
+print('Mean Error Rate over 100 Training data is' + errorsum)
+
 

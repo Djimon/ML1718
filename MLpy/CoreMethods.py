@@ -1,8 +1,10 @@
 import numpy as np
 from pandas import DataFrame
+import random
 
-def SaveMatrix2CSV(matrix,filename):
-    DataFrame(matrix).to_csv(filename+".csv", sep=";", header=False)
+
+def SaveMatrix2CSV(matrix, filename):
+    DataFrame(matrix).to_csv(filename + ".csv", sep=";", header=False)
 
 
 def ReadCardataFromCSV(path):
@@ -10,21 +12,73 @@ def ReadCardataFromCSV(path):
     return str(file.read())
 
 
-def laPlace(numerator,dominator,LP_value,k=1):
-    return (numerator+k)/(dominator+LP_value)
+def laPlace(numerator, denominator, LP_value, k=1):
+    return (numerator + k) / (denominator + LP_value)
+
+
+def createRandomSample(data):
+    end = len(data) * 2 / 3
+    samples = [2]
+    for i in range(0, end):
+        r = random.randint[0, len(data)]
+        samples[0] = samples.append(samples, data[r])
+        #TODO: Eintrag entfernen
+        # data.pop[r]
+    samples[1] = data
+    return samples
+
+'''
+    countData = Training?
+    Tabelle reicht als Vorwissen, für das vorhersagen der Klasse müssen wir dynamisch aussuchen, 
+    welche Tabellenwerte wir jeweils brauchen
+'''
+def train(training):
+    return countData(training)
+
+def predict(test, probs):
+    pred_classification = []
+    #...
+    # pred_classification wird für jeden Eintrag der Test-Daten ein String in die Liste angehängt wie bei geterror
+    return pred_classification
+
+'''
+calculates number of false positives and false negatives in relation to 
+number of predictions by comparing predicted results with correct results
+'''
+
+def geterror(result, correct):
+    data = correct.split("\n")
+    cor_classification = []
+    for D in correct:
+        if str(D).endswith(",unacc"):
+            cor_classification.append(cor_classification, 'unacc')
+        if str(D).endswith(",acc"):
+            cor_classification.append(cor_classification, 'acc')
+        if str(D).endswith(",good"):
+            cor_classification.append(cor_classification, 'good')
+        if str(D).endswith(",vgood"):
+            cor_classification.append(cor_classification, 'vgood')
+
+    errors = 0
+    for i in result:
+        if result[i] != cor_classification[i]:
+            errors += 1
+    res = errors/len(result)
+    return res
+
 
 
 def countData(data):
-    #print("Count input data:")
-    #print(str(data))
-    #print("========================")
+    # print("Count input data:")
+    # print(str(data))
+    # print("========================")
     unacc = []
     acc = []
     good = []
     vgood = []
     datalist = data.split("\n")
-    #print(str(datalist))
-    #print("========================")
+    # print(str(datalist))
+    # print("========================")
     for D in datalist:
         if str(D).endswith(",unacc"):
             unacc.append(CountClassProperties(D))
@@ -40,7 +94,7 @@ def countData(data):
     good_res = np.array(good).sum(axis=0)
     vgood_res = np.array(vgood).sum(axis=0)
 
-    return np.array([unacc_res,acc_res,good_res,vgood_res])
+    return np.array([unacc_res, acc_res, good_res, vgood_res])
 
 
 def CountClassProperties(datalist):
@@ -122,8 +176,4 @@ def CountClassProperties(datalist):
     if arr[5] == "high":
         s_h += 1
 
-    return [b_vh,b_h,b_m,b_l,m_vh,m_h,m_m,m_l,d_2,d_3,d_4,d_5,p_2,p_4,p_m,l_s,l_m,l_b,s_l,s_m,s_h]
-
-
-
-
+    return [b_vh, b_h, b_m, b_l, m_vh, m_h, m_m, m_l, d_2, d_3, d_4, d_5, p_2, p_4, p_m, l_s, l_m, l_b, s_l, s_m, s_h]
