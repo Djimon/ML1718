@@ -36,6 +36,8 @@ cardatapath = "cardaten\\car.data"
 '''
  am besten bischen googlen, wie man mit numpy spaltn, zielen und axen miteinander addidert, etc.
  auf numpy  mit "np" zugreifen
+ Reihenfolge der Spalten:
+ b_vh,b_h,b_m,b_l,m_vh,m_h,m_m,m_l,d_2,d_3,d_4,d_5,p_2,p_4,p_m,l_s,l_m,l_b,s_l,s_m,s_h
  
 '''
 
