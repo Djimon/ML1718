@@ -24,6 +24,7 @@ def createRandomSample(data):
         samples[0] = samples.append(samples, data[r])
         #TODO: Eintrag entfernen
         # data.pop[r]
+        del data[r]
     samples[1] = data
     return samples
 
