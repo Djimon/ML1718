@@ -25,20 +25,13 @@ lug_boot     small, med, big                +3
 safety       low, med, high                 +3
 '''
 
-import CoreMethods as core
 
-cardatapath = "cardaten\\car.data"
-
-#Just testing input reading - successfull
-#print(core.ReadCardataFromCSV(cardatapath).split("\n"))
-
-#TODO: Anhand der Count-matrix (ein Numpy-Array) können nun theoretisch alle Wahrscheinlichkeiten berehcnet werden
 '''
  am besten bischen googlen, wie man mit numpy spaltn, zielen und axen miteinander addidert, etc.
  auf numpy  mit "np" zugreifen
  Reihenfolge der Spalten:
  b_vh,b_h,b_m,b_l,m_vh,m_h,m_m,m_l,d_2,d_3,d_4,d_5,p_2,p_4,p_m,l_s,l_m,l_b,s_l,s_m,s_h
- 
+
 '''
 
 '''
@@ -51,30 +44,39 @@ core.SaveMatrix2CSV(countmatrix, "count_matrix")
 print(str(countmatrix))
 '''
 
+import CoreMethods as core
 
-data = core.ReadCardataFromCSV(cardatapath)
-output = [2]
+cardatapath = "cardaten\\car.data"
+
+#Just testing input reading - successfull
+#print(core.ReadCardataFromCSV(cardatapath).split("\n"))
+
+
+data = [X for X in core.ReadCardataFromCSV(cardatapath) if len(X) > 1] #leerzeile entfernen
+
+output = []
 errors = []
 for i in range(0,100):
-    output = core.createRandomSample(data)
+    output = core.createRandomSample(data.copy())
     training = output[0]
     test = output[1]
     # hier erst countdata(training)
     probs = core.train(training)
-    core.SaveMatrix2CSV(probs, "count_matrix")
-    print(str(probs))
+    core.SaveMatrix2CSV(probs, "count_matrix_"+str(i))
+    #print("matrix of probabilities")
+    #print(str(probs))
     result = core.predict(test, probs)
-    correct = core.countData(test)
-    errors.append(errors, core.geterror(result, correct))
+    #correct = core.countData(test)
+    errors.append(core.geterror(result, test))
 
 
 errorsum = 0
 
-for i in errors:
-    errorsum += errors[i]
+for e in errors:
+    errorsum += e
 
 errorsum /= len(errors)
 
-print('Mean Error Rate over 100 Training data is' + errorsum)
+print('Mean Error Rate over 100 Training data is' + str(errorsum))
 
 
