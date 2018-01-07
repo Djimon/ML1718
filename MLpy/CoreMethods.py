@@ -23,7 +23,9 @@ safety       low, med, high                 +3
 '''
 
 def laPlace(numerator, denominator, LP_value, k=1):
-    return (numerator + k) / (denominator + LP_value)
+    res = (numerator + k) / (denominator + LP_value)
+    #print(res)
+    return res
 
 
 def createRandomSample(data):
@@ -258,10 +260,11 @@ def geterror(result, correct):
             cor_classification.append('vgood')
         count += 1
 
+
     errors = 0
     i = 0
     for R in result:
-        if R != cor_classification[i]:
+        if i < count and R != cor_classification[i]:
             errors += 1
         i += 1
     return errors/len(result), [cor_classification,result]
