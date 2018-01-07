@@ -42,11 +42,7 @@ def createRandomSample(data):
     training = data
     return [training, test]
 
-'''
-    countData = Training?
-    Tabelle reicht als Vorwissen, für das vorhersagen der Klasse müssen wir dynamisch aussuchen, 
-    welche Tabellenwerte wir jeweils brauchen
-'''
+# Training = create Table
 def train(training):
     return countData(training)
 
@@ -61,16 +57,16 @@ def predict(test, probs):
 
         # get probability for each possible class
         values = getprobs(test, probs, 'unacc', rows)
-        p_unacc = values/ p_evidence
+        p_unacc = laPlace(values, p_evidence, 4, 1)
 
         values = getprobs(test, probs, 'acc', rows)
-        p_acc = values/ p_evidence
+        p_acc = laPlace(values, p_evidence, 4, 1)
 
         values = getprobs(test, probs, 'good', rows)
-        p_good = values/ p_evidence
+        p_good = laPlace(values, p_evidence, 4, 1)
 
         values = getprobs(test, probs, 'vgood', rows)
-        p_vgood = values/ p_evidence
+        p_vgood = laPlace(values, p_evidence, 4, 1)
 
         # which class should be assigned
         highestprobability = max(p_unacc, p_acc, p_good, p_vgood)
