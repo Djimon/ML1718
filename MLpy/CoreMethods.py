@@ -86,11 +86,11 @@ def predict(test, probs):
     return pred_classification
 
 
-def ProbaEvidence(column,matrix):
+def ProbaEvidence(column,matrix,LP):
     length = len(matrix)
     #print("Proba-Matrix (%d):" %length)
     #print(np.array(matrix[:,column]))
-    return np.array(matrix[:,column]).sum(axis=0) / length
+    return laPlace(np.array(matrix[:,column]).sum(axis=0),length,LP_value=LP)
     #TODO: Nicht sicher ob es auch wirklich das tut, was es soll?
 
 def getEvidence(dataline, probabilities):
@@ -105,52 +105,52 @@ def getEvidence(dataline, probabilities):
     p_s = 0.000001
 
     if arr[0] == "v-high":
-        p_b = ProbaEvidence(0,probabilities)
+        p_b = ProbaEvidence(0,probabilities,4)
     if arr[0] == "high":
-        p_b = ProbaEvidence(1,probabilities)
+        p_b = ProbaEvidence(1,probabilities,4)
     if arr[0] == "med":
-        p_b = ProbaEvidence(2,probabilities)
+        p_b = ProbaEvidence(2,probabilities,4)
     if arr[0] == "low":
-        p_b = ProbaEvidence(3,probabilities)
+        p_b = ProbaEvidence(3,probabilities,4)
 
     if arr[1] == "v-high":
-        p_m = ProbaEvidence(4,probabilities)
+        p_m = ProbaEvidence(4,probabilities,4)
     if arr[1] == "high":
-        p_m = ProbaEvidence(5,probabilities)
+        p_m = ProbaEvidence(5,probabilities,4)
     if arr[1] == "med":
-        p_m = ProbaEvidence(6,probabilities)
+        p_m = ProbaEvidence(6,probabilities,4)
     if arr[1] == "low":
-        p_m = ProbaEvidence(7,probabilities)
+        p_m = ProbaEvidence(7,probabilities,4)
 
     if arr[2] == "2":
-        p_d = ProbaEvidence(8,probabilities)
+        p_d = ProbaEvidence(8,probabilities,4)
     if arr[2] == "3":
-        p_d = ProbaEvidence(9,probabilities)
+        p_d = ProbaEvidence(9,probabilities,4)
     if arr[2] == "4":
-        p_d = ProbaEvidence(10,probabilities)
+        p_d = ProbaEvidence(10,probabilities,4)
     if arr[2] == "5-more":
-        p_d = ProbaEvidence(11,probabilities)
+        p_d = ProbaEvidence(11,probabilities,4)
 
     if arr[3] == "2":
-        p_p = ProbaEvidence(12,probabilities)
+        p_p = ProbaEvidence(12,probabilities,3)
     if arr[3] == "4":
-        p_p = ProbaEvidence(13,probabilities)
+        p_p = ProbaEvidence(13,probabilities,3)
     if arr[3] == "more":
-        p_p = ProbaEvidence(14,probabilities)
+        p_p = ProbaEvidence(14,probabilities,3)
 
     if arr[4] == "small":
-        p_l = ProbaEvidence(15,probabilities)
+        p_l = ProbaEvidence(15,probabilities,3)
     if arr[4] == "med":
-        p_l = ProbaEvidence(16,probabilities)
+        p_l = ProbaEvidence(16,probabilities,3)
     if arr[4] == "big":
-        p_l = ProbaEvidence(17,probabilities)
+        p_l = ProbaEvidence(17,probabilities,3)
 
     if arr[5] == "low":
-        p_s = ProbaEvidence(18,probabilities)
+        p_s = ProbaEvidence(18,probabilities,3)
     if arr[5] == "med":
-        p_s = ProbaEvidence(19,probabilities)
+        p_s = ProbaEvidence(19,probabilities,3)
     if arr[5] == "high":
-        p_s = ProbaEvidence(20,probabilities)
+        p_s = ProbaEvidence(20,probabilities,3)
 
     res = p_b*p_m*p_d*p_p*p_l*p_s
     return res
@@ -181,54 +181,54 @@ def getprobs(dataline, probabilities, testedclass,rowcount):
     # für jede Wahrscheinlichkeit entsprechend richtige Zeile(tableline) und Spalte auswählen (Zeile=Klasse=testedClass; Spalte =b_vh usw.)
     arr = dataline.split(",")
     if arr[0] == "v-high":
-        p_b = probabilities[tableline][0] / rowcount
+        p_b = laPlace(probabilities[tableline][0], rowcount, 4)
     if arr[0] == "high":
-        p_b = probabilities[tableline][1] / rowcount
+        p_b = laPlace(probabilities[tableline][1], rowcount, 4)
     if arr[0] == "med":
-        p_b = probabilities[tableline][2] / rowcount
+        p_b = laPlace(probabilities[tableline][2], rowcount, 4)
     if arr[0] == "low":
-        p_b = probabilities[tableline][3] / rowcount
+        p_b = laPlace(probabilities[tableline][3], rowcount, 4)
 
     if arr[1] == "v-high":
-        p_m = probabilities[tableline][4] / rowcount
+        p_m = laPlace(probabilities[tableline][4], rowcount, 4)
     if arr[1] == "high":
-        p_m = probabilities[tableline][5] / rowcount
+        p_m = laPlace(probabilities[tableline][5], rowcount, 4)
     if arr[1] == "med":
-        p_m = probabilities[tableline][6] / rowcount
+        p_m = laPlace(probabilities[tableline][6], rowcount, 4)
     if arr[1] == "low":
-        p_m = probabilities[tableline][7] / rowcount
+        p_m = laPlace(probabilities[tableline][7], rowcount, 4)
 
     if arr[2] == "2":
-        p_d = probabilities[tableline][8] / rowcount
+        p_d = laPlace(probabilities[tableline][8], rowcount, 4)
     if arr[2] == "3":
-        p_d = probabilities[tableline][9] / rowcount
+        p_d = laPlace(probabilities[tableline][9], rowcount, 4)
     if arr[2] == "4":
-        p_d = probabilities[tableline][10] / rowcount
+        p_d = laPlace(probabilities[tableline][10], rowcount, 4)
     if arr[2] == "5-more":
-        p_d = probabilities[tableline][11] / rowcount
+        p_d = laPlace(probabilities[tableline][11], rowcount, 4)
 
     if arr[3] == "2":
-        p_p = probabilities[tableline][12] / rowcount
+        p_p = laPlace(probabilities[tableline][12], rowcount, 3)
     if arr[3] == "4":
-        p_p = probabilities[tableline][13] / rowcount
+        p_p = laPlace(probabilities[tableline][13], rowcount, 3)
     if arr[3] == "more":
-        p_p = probabilities[tableline][14] / rowcount
+        p_p = laPlace(probabilities[tableline][14], rowcount, 3)
 
     if arr[4] == "small":
-        p_l = probabilities[tableline][15] / rowcount
+        p_l = laPlace(probabilities[tableline][15], rowcount, 3)
     if arr[4] == "med":
-        p_l = probabilities[tableline][16] / rowcount
+        p_l = laPlace(probabilities[tableline][16], rowcount, 3)
     if arr[4] == "big":
-        p_l = probabilities[tableline][17] / rowcount
+        p_l = laPlace(probabilities[tableline][17], rowcount, 3)
 
     if arr[5] == "low":
-        p_s = probabilities[tableline][18]/ rowcount
+        p_s = laPlace(probabilities[tableline][18], rowcount, 3)
     if arr[5] == "med":
-        p_s = probabilities[tableline][19] / rowcount
+        p_s = laPlace(probabilities[tableline][19], rowcount, 3)
     if arr[5] == "high":
-        p_s = probabilities[tableline][20] / rowcount
+        p_s = laPlace(probabilities[tableline][20], rowcount, 3)
 
-    p_c = probabilities[tableline][21+tableline]/ rowcount
+    p_c = laPlace(probabilities[tableline][21+tableline],rowcount,4)
 
     res = p_b * p_m * p_d * p_p * p_l * p_s * p_c
 
