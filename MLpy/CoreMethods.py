@@ -24,20 +24,16 @@ safety       low, med, high                 +3
 
 def laPlace(numerator, denominator, LP_value, k=1):
     res = (numerator + k) / (denominator + LP_value)
-    #print(res)
     return res
 
 
 def createRandomSample(data):
     length = len(data)
-    #print(data)
-    #print("length = ",length)
     end = length * 2 / 3
     training = []
     test = []
     for i in range(0, int(end)):
         r = random.randint(0, length-1)
-        #print("random: ",r)
         test.append(data[r])
         del data[r]
         length -= 1
@@ -72,8 +68,6 @@ def predict(test, probs):
 
         # which class should be assigned
         highestprobability = max(p_unacc, p_acc, p_good, p_vgood)
-        #TODO: Für die Überprüfung einkommentieren
-        #print("highest proba: {0} ({1},{2},{3},{4})".format(highestprobability,p_unacc,p_acc,p_good,p_vgood))
 
         # append class information to list
         if highestprobability == p_unacc:
@@ -90,15 +84,12 @@ def predict(test, probs):
 
 def ProbaEvidence(column,matrix,LP):
     length = len(matrix)
-    #print("Proba-Matrix (%d):" %length)
-    #print(np.array(matrix[:,column]))
     return laPlace(np.array(matrix[:,column]).sum(axis=0),length,LP_value=LP)
-    #TODO: Nicht sicher ob es auch wirklich das tut, was es soll?
+
 
 def getEvidence(dataline, probabilities):
     # für jede Wahrscheinlichkeit entsprechend richtige Zeile(unterste) und Spalte auswählen (Zeile=Klasse=Gesamtanzahl dieser Ausprägung der Variable; Spalte =b_vh usw.)
     arr = dataline.split(",")
-    #print(arr)
     p_b = 0.000001
     p_m = 0.000001
     p_d = 0.000001
@@ -177,7 +168,6 @@ def getprobs(dataline, probabilities, testedclass,rowcount):
     if testedclass == 'vgood':
         tableline = 3
 
-    #print("Tableline = ",tableline," class = ",testedclass)
 
     #b_vh, b_h, b_m, b_l, m_vh, m_h, m_m, m_l, d_2, d_3, d_4, d_5, p_2, p_4, p_m, l_s, l_m, l_b, s_l, s_m, s_h, c_unacc, c_acc, c_good, c_vgood
     # für jede Wahrscheinlichkeit entsprechend richtige Zeile(tableline) und Spalte auswählen (Zeile=Klasse=testedClass; Spalte =b_vh usw.)
@@ -291,16 +281,10 @@ def getClassIndex(classlabel):
         return 3
 
 def countData(data):
-    # print("Count input data:")
-    # print(str(data))
-    # print("========================")
     unacc = []
     acc = []
     good = []
     vgood = []
-    #datalist = data.split("\n")
-    # print(str(datalist))
-    # print("========================")
     for D in data:
         if str(D).endswith(",unacc"):
             unacc.append(CountClassProperties(D))
@@ -310,18 +294,14 @@ def countData(data):
             good.append(CountClassProperties(D))
         if str(D).endswith(",vgood"):
             vgood.append(CountClassProperties(D))
-
     unacc_res = np.array(unacc).sum(axis=0)
     acc_res = np.array(acc).sum(axis=0)
     good_res = np.array(good).sum(axis=0)
     vgood_res = np.array(vgood).sum(axis=0)
-    #print("Traiing:")
-    #print(unacc_res,acc_res,good_res,vgood_res)
     return np.array([unacc_res, acc_res, good_res, vgood_res])
 
 
 def CountClassProperties(datalist):
-    #print("Counting element: " + str(datalist))
     # buying
     b_vh = 0  # buing, v-high
     b_h = 0  # buing, high

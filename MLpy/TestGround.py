@@ -1,20 +1,6 @@
-#TODO: classify car data with a Naive Bayes classifier
-#TODO: use laplace smoothing
 '''
-use:
-       count + k
-    --------------
-    N + k*|classes|
-
-'''
-#TODO: Split data: 2/3 train  <-> 1/3 test (crossvalidation)
-#TODO: Determine the mean error rate over 100 different random samples of training data
-#TODO: plot a confusion matrix for one sample
-
-#inspiration: http://dataaspirant.com/2017/02/06/naive-bayes-classifier-machine-learning/
-#simple explaination https://www.youtube.com/watch?v=km2LoOpdB3A
-
-'''                                       LP-Value (k=1)
+     Table
+                                     LP-Value (k=1)
 class        unacc, acc, good, vgood        +4
 -----------------------------------
 buying       v-high, high, med, low         +4
@@ -48,10 +34,7 @@ for i in range(0,100):
     probs = core.train(training)
     if i >95:
         core.SaveMatrix2CSV(probs, "count_matrix_"+str(i))
-    #print("matrix of probabilities")
-    #print(str(probs))
     result = core.predict(test, probs)
-    #correct = core.countData(test)
     error, conf = core.geterror(result, test)
     errors.append(error)
     if i == 50:
