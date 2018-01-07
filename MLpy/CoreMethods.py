@@ -274,11 +274,11 @@ def CreateConfMatrix(trues, preds):
     t = 0
     p = 0
     matrix = [[0 for col in range(4)] for row in range(4)]
-    for T in trues:
-        for P in preds:
-            print("Predicted: '{0}' <-> '{1}'".format(T,P))
-            matrix[getClassIndex(T)][getClassIndex(P)] += 1
+    for T,P in zip(trues,preds):
+        print("Predicted: '{0}' <-> '{1}'".format(T,P))
+        matrix[getClassIndex(T)][getClassIndex(P)] += 1
     SaveMatrix2CSV(matrix,"conf_matrix")
+    print(matrix)
 
 def getClassIndex(classlabel):
     if classlabel == "unacc":
