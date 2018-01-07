@@ -62,12 +62,16 @@ for i in range(0,100):
     test = output[1]
     # hier erst countdata(training)
     probs = core.train(training)
-    core.SaveMatrix2CSV(probs, "count_matrix_"+str(i))
+    if i >95:
+        core.SaveMatrix2CSV(probs, "count_matrix_"+str(i))
     #print("matrix of probabilities")
     #print(str(probs))
     result = core.predict(test, probs)
     #correct = core.countData(test)
-    errors.append(core.geterror(result, test))
+    error, conf = core.geterror(result, test)
+    errors.append(error)
+    if i == 50:
+        core.CreateConfMatrix(conf[0], conf[1])
 
 
 errorsum = 0
@@ -77,6 +81,6 @@ for e in errors:
 
 errorsum /= len(errors)
 
-print('Mean Error Rate over 100 Training data is' + str(errorsum))
+print('Mean Error Rate over 100 Training data is ' + str(errorsum))
 
 

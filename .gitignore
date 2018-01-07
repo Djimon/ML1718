@@ -1,2 +1,4 @@
 bin
 .idea
+venv
+__pycache__

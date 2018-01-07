@@ -74,6 +74,8 @@ def predict(test, probs):
 
         # which class should be assigned
         highestprobability = max(p_unacc, p_acc, p_good, p_vgood)
+        #TODO: Für die Überprüfung einkommentieren
+        #print("highest proba: {0} ({1},{2},{3},{4})".format(highestprobability,p_unacc,p_acc,p_good,p_vgood))
 
         # append class information to list
         if highestprobability == p_unacc:
@@ -98,7 +100,7 @@ def ProbaEvidence(column,matrix):
 def getEvidence(dataline, probabilities):
     # für jede Wahrscheinlichkeit entsprechend richtige Zeile(unterste) und Spalte auswählen (Zeile=Klasse=Gesamtanzahl dieser Ausprägung der Variable; Spalte =b_vh usw.)
     arr = dataline.split(",")
-    print(arr)
+    #print(arr)
     p_b = 0.000001
     p_m = 0.000001
     p_d = 0.000001
@@ -266,9 +268,28 @@ def geterror(result, correct):
         if R != cor_classification[i]:
             errors += 1
         i += 1
-    return errors/len(result)
+    return errors/len(result), [cor_classification,result]
 
 
+def CreateConfMatrix(trues, preds):
+    t = 0
+    p = 0
+    matrix = [[0 for col in range(4)] for row in range(4)]
+    for T in trues:
+        for P in preds:
+            print("Predicted: '{0}' <-> '{1}'".format(T,P))
+            matrix[getClassIndex(T)][getClassIndex(P)] += 1
+    SaveMatrix2CSV(matrix,"conf_matrix")
+
+def getClassIndex(classlabel):
+    if classlabel == "unacc":
+        return 0
+    if classlabel == "acc":
+        return 1
+    if classlabel == "good":
+        return 2
+    if classlabel == "vgood":
+        return 3
 
 def countData(data):
     # print("Count input data:")
