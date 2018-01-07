@@ -22,27 +22,27 @@ safety       low, med, high                 +3
 import CoreMethods as core
 
 cardatapath = "cardaten\\car.data"
-
+print("Reading cardata from: ",cardatapath)
 data = [X for X in core.ReadCardataFromCSV(cardatapath) if len(X) > 1] #leerzeile entfernen
-
+print("Training the Naive Beyes Classifier")
 output = []
 errors = []
+output = core.createRandomSample(data.copy())
+training = output[0]
+test = output[1]
+probs = core.train(training)
+core.SaveMatrix2CSV(probs, "count_matrix_")
+print("Starting Prediction...")
 for i in range(0,100):
-    output = core.createRandomSample(data.copy())
-    training = output[0]
-    test = output[1]
-    probs = core.train(training)
-    if i >95:
-        core.SaveMatrix2CSV(probs, "count_matrix_"+str(i))
     result = core.predict(test, probs)
     error, conf = core.geterror(result, test)
     errors.append(error)
     if i == 50:
+        print("Confusion Matrix created for 1 example")
         core.CreateConfMatrix(conf[0], conf[1])
 
 
 errorsum = 0
-
 for e in errors:
     errorsum += e
 

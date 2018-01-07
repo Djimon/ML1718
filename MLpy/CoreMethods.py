@@ -268,7 +268,7 @@ def CreateConfMatrix(trues, preds):
         print("Predicted: '{0}' <-> '{1}'".format(T,P))
         matrix[getClassIndex(T)][getClassIndex(P)] += 1
     SaveMatrix2CSV(matrix,"conf_matrix")
-    print(matrix)
+    print("Confusion matrix: ",matrix)
 
 def getClassIndex(classlabel):
     if classlabel == "unacc":
