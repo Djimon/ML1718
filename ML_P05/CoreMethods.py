@@ -24,15 +24,15 @@ safety       low, med, high                 +3
 
 def createRandomSample(data):
     length = len(data)
-    end = length * 2 / 3
+    end = length * 1 / 3
     training = []
     test = []
     for i in range(0, int(end)):
         r = random.randint(0, length-1)
-        training.append(data[r])
+        test.append(data[r])
         del data[r]
         length -= 1
-    test = data
+    training = data
     return training, test
 
 
@@ -84,14 +84,18 @@ def predict(test, training, k):
         highestvote = max(n_unacc, n_acc, n_good, n_vgood)
 
         # append class information to list
-        if highestvote == n_unacc:
-            pred_classification.append('unacc')
-        if highestvote == n_acc:
-            pred_classification.append('acc')
         if highestvote == n_good:
             pred_classification.append('good')
+            continue
         if highestvote == n_vgood:
             pred_classification.append('vgood')
+            continue
+        if highestvote == n_acc:
+            pred_classification.append('acc')
+            continue
+        if highestvote == n_unacc:
+            pred_classification.append('unacc')
+            continue
     return pred_classification
 
 
@@ -145,10 +149,10 @@ def CreateConfMatrix(trues, preds):
     p = 0
     matrix = [[0 for col in range(4)] for row in range(4)]
     for T,P in zip(trues,preds):
-        print("Predicted: '{0}' <-> '{1}'".format(T,P))
+        #print("Predicted: '{0}' <-> '{1}'".format(T,P))
         matrix[getClassIndex(T)][getClassIndex(P)] += 1
     SaveMatrix2CSV(matrix,"conf_matrix")
-    print(matrix)
+    print("confusion-matrix:", str(matrix))
 
 def getClassIndex(classlabel):
     if classlabel == "unacc":
