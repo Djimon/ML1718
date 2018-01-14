@@ -50,8 +50,7 @@ for i in range(0,max):
     result = core.predict(test, training, int(k))
     error, conf = core.geterror(result, test)
     errors.append(error)
-    print("result: "+result+" (e = "+str(error)+"), time: " + str(time.time()-t0))
-    print()
+    print("result: "+str(result)+" (e = "+str(error)+"), time: " + str(time.time()-t0))
     if i == 50:
         core.CreateConfMatrix(conf[0], conf[1])
     print(i+1," from ",max)
