@@ -29,20 +29,24 @@ def createRandomSample(data):
     test = []
     for i in range(0, int(end)):
         r = random.randint(0, length-1)
-        test.append(data[r])
+        training.append(data[r])
         del data[r]
         length -= 1
-    training = data
-    return [training, test]
+    test = data
+    return training, test
 
 
 def predict(test, training, k):
     #probs ist die count-matrix
     pred_classification = []
     testdata = test
-
+    diffs = []
+    testlength = len(testdata)
+    q = 0
     for test in testdata:
-
+        q += 1
+        if q%100 == 0 or q == testlength:
+            print("tested: ",q," /",testlength)
         n_unacc = 0
         n_acc = 0
         n_good = 0
@@ -52,15 +56,28 @@ def predict(test, training, k):
             difference = 0
             difference = compare(test, tr)
             # Differenz zu jedem Punkt wird berechnet
-            # ToDo: muss zusammen mit jedem Trainingsdatenpunkt in Liste gespeichert werden
+            diffs.append([tr,difference])
 
-        #ToDo: Liste sortieren
-        #ToDo: k kleinsten Differenzen wählen
+        # Liste sortieren
+        #print(diffs)
+        diffs.sort(key = lambda x: int(x[1]),reverse=False)
+        #print(diffs)
+        #k kleinsten Differenzen wählen
+        kbest = [x for x in diffs[:k]]
+        #print(kbest)
+        #xyz = input("debug stop")
 
         for i in range(0,k):
-            print("Do something") #for-loop wants indent here, just filler
-            #ToDo: für jeden dieser Datenpunkte vergleichen, welche Klasse dieser Trainingspunkt hätte
-            #ToDo: diese Klasse entsprechend hochzählen (n_unacc, n_acc, n_good, n_vgood)
+            #print(kbest[i][0].split(",")) #for-loop wants indent here, just filler
+            #für jeden dieser Datenpunkte vergleichen, welche Klasse dieser Trainingspunkt hätte und diese hochzählen
+            if kbest[i][0].split(",")[6] == 'unacc':
+                n_unacc += 1
+            if kbest[i][0].split(",")[6] == 'acc':
+                n_acc += 1
+            if kbest[i][0].split(",")[6] == 'good':
+                n_good += 1
+            if kbest[i][0].split(",")[6] == 'vgood':
+                n_vgood += 1
 
 
         # which class should be assigned (majority vote)

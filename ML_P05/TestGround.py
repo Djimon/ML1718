@@ -10,7 +10,7 @@ persons      2, 4, more                     +3
 lug_boot     small, med, big                +3
 safety       low, med, high                 +3
 '''
-
+import time
 
 '''
 
@@ -23,13 +23,6 @@ safety       low, med, high                 +3
 ++++ ToDo: k at runtime
 ToDo: compute and evaluate for k=1 und k=5
 ToDo: combine distance with training point, sort this combined list
-++++ ToDo: majority vote
-++++ ToDo: learn data (store)
-++++ ToDo: distance (dissimilarity measure) --> Hamming Distance
-++++ ToDo: chose two third as training, one third as test data randomly
-++++ ToDo: 100 samples 
-++++ ToDo: determine mean error rate
-++++ ToDo: plot confusion matrix
 ToDo: compare with classifications from previous assignments, especially Naive Bayes
 '''
 
@@ -42,22 +35,26 @@ data = [X for X in core.ReadCardataFromCSV(cardatapath) if len(X) > 1] #leerzeil
 
 k = input("How many nearest neighbors should be considered for classifying?")
 
-if k.isnumeric() == false:
+if not k.isnumeric():
     print("No valid input. Exiting program")
     sys.exit()
 
 
 output = []
 errors = []
-for i in range(0,100):
-    output = core.createRandomSample(data.copy())
-    training = output[0]
-    test = output[1]
-    result = core.predict(test, training, k)
+max = 10
+print("running kNN 100 times to calculate error")
+for i in range(0,max):
+    t0 = time.time()
+    training, test = core.createRandomSample(data.copy())
+    result = core.predict(test, training, int(k))
     error, conf = core.geterror(result, test)
     errors.append(error)
+    print("time: ",time.time()-t0)
     if i == 50:
         core.CreateConfMatrix(conf[0], conf[1])
+    if i%10 == 0:
+        print(i," from ",max+1)
 
 
 errorsum = 0
