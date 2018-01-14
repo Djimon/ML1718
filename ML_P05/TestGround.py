@@ -42,19 +42,19 @@ if not k.isnumeric():
 
 output = []
 errors = []
-max = 10
-print("running kNN 100 times to calculate error")
+max = 100
+print("running kNN %d times to calculate error" %max)
 for i in range(0,max):
     t0 = time.time()
     training, test = core.createRandomSample(data.copy())
     result = core.predict(test, training, int(k))
     error, conf = core.geterror(result, test)
     errors.append(error)
-    print("time: ",time.time()-t0)
+    print("result: "+result+" (e = "+str(error)+"), time: " + str(time.time()-t0))
+    print()
     if i == 50:
         core.CreateConfMatrix(conf[0], conf[1])
-    if i%10 == 0:
-        print(i," from ",max+1)
+    print(i+1," from ",max)
 
 
 errorsum = 0
@@ -64,6 +64,6 @@ for e in errors:
 
 errorsum /= len(errors)
 
-print('Mean Error Rate over 100 Training data is ' + str(errorsum))
+print("Mean Error Rate over " +str(max)+ " Training data is " + str(errorsum))
 
 

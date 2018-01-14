@@ -92,7 +92,6 @@ def predict(test, training, k):
             pred_classification.append('good')
         if highestvote == n_vgood:
             pred_classification.append('vgood')
-
     return pred_classification
 
 
